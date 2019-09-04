@@ -1,4 +1,4 @@
-import colors from 'vuetify/es5/util/colors'
+// import colors from 'vuetify/es5/util/colors'
 
 export default {
   mode: 'spa',
@@ -6,8 +6,8 @@ export default {
    ** Headers of the page
    */
   head: {
-    titleTemplate: '%s - ' + process.env.npm_package_name,
-    title: process.env.npm_package_name || '',
+    titleTemplate: '%s - ' + 'PAE UTC',
+    title: '',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -17,12 +17,19 @@ export default {
         content: process.env.npm_package_description || ''
       }
     ],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
+    link: [
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      {
+        rel: 'stylesheet',
+        href:
+          'https://cdn.jsdelivr.net/npm/@mdi/font@3.x/css/materialdesignicons.min.css'
+      }
+    ]
   },
   /*
    ** Customize the progress-bar color
    */
-  loading: { color: '#fff' },
+  loading: false,
   /*
    ** Global CSS
    */
@@ -59,21 +66,21 @@ export default {
    ** https://github.com/nuxt-community/vuetify-module
    */
   vuetify: {
-    customVariables: ['~/assets/variables.scss'],
-    theme: {
-      dark: true,
-      themes: {
-        dark: {
-          primary: colors.blue.darken2,
-          accent: colors.grey.darken3,
-          secondary: colors.amber.darken3,
-          info: colors.teal.lighten1,
-          warning: colors.amber.base,
-          error: colors.deepOrange.accent4,
-          success: colors.green.accent3
-        }
-      }
-    }
+    customVariables: ['~/assets/variables.scss']
+    // theme: {
+    //   dark: true,
+    //   themes: {
+    //     dark: {
+    //       primary: colors.blue.darken2,
+    //       accent: colors.grey.darken3,
+    //       secondary: colors.amber.darken3,
+    //       info: colors.teal.lighten1,
+    //       warning: colors.amber.base,
+    //       error: colors.deepOrange.accent4,
+    //       success: colors.green.accent3
+    //     }
+    //   }
+    // }
   },
   /*
    ** Build configuration

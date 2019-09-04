@@ -3,5 +3,20 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"eslint.workingDirectories": [
+			{ 
+				"directory": "front", 
+				"changeProcessCWD": true
+			},
+			{ 
+				"directory": "back", 
+				"changeProcessCWD": true
+			}
+		],
+		"editor.quickSuggestions": {
+			"strings": true,
+		}
+	}
 }

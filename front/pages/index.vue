@@ -1,19 +1,19 @@
 <template>
-  <v-layout>
-    <p>{{ helloWorld }}</p>
-  </v-layout>
+  <v-layout></v-layout>
 </template>
 
 <script>
 export default {
+  name: 'Accueil',
   data() {
     return {
       helloWorld: ''
     }
   },
-  async mounted() {
-    const { data } = await this.$axios.$get('/')
-    this.helloWorld = data
+  head() {
+    return {
+      title: 'Accueil'
+    }
   }
 }
 </script>
