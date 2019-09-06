@@ -30,7 +30,7 @@
     </v-navigation-drawer>
 
     <v-content>
-      <v-container fluid>
+      <v-container style="background-color:white" fluid>
         <nuxt />
       </v-container>
     </v-content>
