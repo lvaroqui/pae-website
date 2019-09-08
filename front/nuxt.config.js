@@ -1,4 +1,5 @@
 // import colors from 'vuetify/es5/util/colors'
+import fr from 'vuetify/es5/locale/fr'
 
 export default {
   mode: 'spa',
@@ -44,7 +45,8 @@ export default {
   buildModules: [
     // Doc: https://github.com/nuxt-community/eslint-module
     '@nuxtjs/eslint-module',
-    '@nuxtjs/vuetify'
+    '@nuxtjs/vuetify',
+    '@nuxtjs/moment'
   ],
   /*
    ** Nuxt.js modules
@@ -53,6 +55,14 @@ export default {
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios'
   ],
+  /*
+   ** Moment.js module configuration
+   ** See https://github.com/nuxt-community/moment-module
+   */
+  moment: {
+    defaultLocale: 'fr',
+    locales: ['fr']
+  },
   /*
    ** Axios module configuration
    ** See https://axios.nuxtjs.org/options
@@ -66,7 +76,11 @@ export default {
    ** https://github.com/nuxt-community/vuetify-module
    */
   vuetify: {
-    customVariables: ['~/assets/variables.scss']
+    customVariables: ['~/assets/variables.scss'],
+    lang: {
+      locales: { fr },
+      current: 'fr'
+    }
     // theme: {
     //   dark: true,
     //   themes: {
