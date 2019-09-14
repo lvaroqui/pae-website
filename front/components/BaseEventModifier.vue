@@ -23,6 +23,7 @@
           v-model="endTime"
           :min="startTime"
           max="21:30"
+          :allowed-minutes="[0, 15, 30, 45]"
           label="Heure de fin"
         />
       </v-card-text>

@@ -47,6 +47,7 @@
           :weekdays="[1, 2, 3, 4, 5, 6]"
           @change="updateRange"
           @click:event="showEvent"
+          @click:time="handleCreateEventClick"
         >
         </v-calendar>
 
@@ -60,8 +61,11 @@
         >
           <v-card color="grey lighten-4" min-width="350px" flat>
             <v-toolbar :color="selectedEvent.color" dark>
-              <v-btn icon @click="handleCalendarEventClick">
+              <v-btn icon @click="handleEditEventClick">
                 <v-icon>mdi-pencil</v-icon>
+              </v-btn>
+              <v-btn icon @click="handleDeleteEventClick">
+                <v-icon>mdi-delete</v-icon>
               </v-btn>
               <v-toolbar-title>{{ selectedEvent.asso }}</v-toolbar-title>
               <div class="flex-grow-1"></div>
@@ -190,21 +194,43 @@ export default {
 
       nativeEvent.stopPropagation()
     },
-    handleCalendarEventClick() {
+    handleEditEventClick() {
       this.$refs.eventModifier.showModal(this.selectedEvent)
     },
-    handleCreateEventClick() {
-      this.$refs.eventModifier.showModal(null)
+    handleCreateEventClick(day) {
+      // Do not open Event Editor if menu is open
+      if (this.selectedOpen) {
+        return
+      }
+
+      let event = null
+      if (day.date) {
+        const now = this.$moment(`${day.date} ${day.time}`).startOf('h')
+        event = {
+          start: now.format('YYYY-MM-DD HH:mm'),
+          end: now.add(30, 'm').format('YYYY-MM-DD HH:mm')
+        }
+      }
+      this.$refs.eventModifier.showModal(event)
+    },
+    handleDeleteEventClick() {
+      // TODO: API LINK DELETE
+      this.events = this.events.filter((e) => e.id !== this.selectedEvent.id)
+      this.selectedEvent = {}
+      this.selectedElement = null
+      this.selectedOpen = false
     },
     updateOrCreateEvent(event) {
       // Update
       if (event.id) {
         this.events = this.events.filter((e) => e.id !== event.id)
         this.events.push(event)
-        // TODO: API LINK
+        // TODO: API LINK UPDATE
       }
       // Create
       else {
+        event.id = this.events[this.events.length - 1].id + 1
+        // TODO: API LINK DELETE
         this.events.push(event)
       }
     },
