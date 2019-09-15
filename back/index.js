@@ -1,34 +1,37 @@
-const express = require('express');
-const app = express();
+const express = require('express')
+const app = express()
 
-const cors = require('cors');
-const bodyParser = require('body-parser');
+const cors = require('cors')
+const bodyParser = require('body-parser')
+const cookieSession = require('cookie-session')
 
-const roomsRouter = require('./routes/rooms');
+const roomsRouter = require('./routes/rooms-route')
+const usersRouter = require('./routes/users-route')
+const authRouter = require('./routes/auth-route')
 
-// const passport = require('passport')
-// const OAuth2Strategy = require('passport-oauth2').Strategy;passport.use(new OAuth2Strategy({
-//   authorizationURL: 'http://localhost:8000/oauth/authorize',
-//   tokenURL: 'http://localhost:8000/oauth/token',
-//   clientID: '53616d79-206a-6520-7427-61696d652021',
-//   clientSecret: 'password',
-//   callbackURL: 'http://localhost:3000/'
-// },
-// function(accessToken, refreshToken, profile, cb) {
-//   User.findOrCreate({ exampleId: profile.id }, function (err, user) {
-//     return cb(err, user);
-//   });
-// }
-// ));
+const passport = require('./config/passport')
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
-app.use(cors());
+const keys = require('./config/keys')
+var corsOptions = {
+  origin: 'http://localhost:3000',
+  optionsSuccessStatus: 200,
+  credentials: true
+}
+app.use(cors(corsOptions))
 
-app.use('/rooms', roomsRouter);
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(cookieSession({
+  maxAge: 24*60*60*1000,
+  keys: [keys.session.cookieKey]}
+));
+app.use(passport.initialize())
+app.use(passport.session())
+
+app.use('/rooms', roomsRouter)
+app.use('/auth', authRouter)
+app.use('/users', usersRouter)
 
 app.listen(3001, () => {
-  console.log('Listening on port 3001');
-});
+  console.log('Listening on port 3001')
+})
