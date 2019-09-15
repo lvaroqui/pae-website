@@ -1,8 +1,17 @@
 {
 	"folders": [
 		{
-			"path": "."
-		}
+			"name": "Back",
+			"path": "back"
+		},
+		{
+			"name": "Front",
+			"path": "front"
+		},
+		{
+			"name": "README",
+			"path": "README.md"
+		},
 	],
 	"settings": {
 		"eslint.workingDirectories": [
