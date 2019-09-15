@@ -47,7 +47,7 @@
           :weekdays="[1, 2, 3, 4, 5, 6]"
           @change="updateRange"
           @click:event="showEvent"
-          @click:time="handleCreateEventClick"
+          @click:time="handleCalendarClick"
         >
         </v-calendar>
 
@@ -197,19 +197,14 @@ export default {
     handleEditEventClick() {
       this.$refs.eventModifier.showModal(this.selectedEvent)
     },
-    handleCreateEventClick(day) {
-      // Do not open Event Editor if menu is open
-      if (this.selectedOpen) {
-        return
-      }
-
-      let event = null
-      if (day.date) {
-        const now = this.$moment(`${day.date} ${day.time}`).startOf('h')
-        event = {
-          start: now.format('YYYY-MM-DD HH:mm'),
-          end: now.add(30, 'm').format('YYYY-MM-DD HH:mm')
-        }
+    handleCreateEventClick() {
+      this.$refs.eventModifier.showModal(null)
+    },
+    handleCalendarClick(day) {
+      const now = this.$moment(`${day.date} ${day.time}`).startOf('h')
+      const event = {
+        start: now.format('YYYY-MM-DD HH:mm'),
+        end: now.add(30, 'm').format('YYYY-MM-DD HH:mm')
       }
       this.$refs.eventModifier.showModal(event)
     },
@@ -237,7 +232,7 @@ export default {
     giveEventName(e) {
       const name = e.input.asso ? e.input.asso : e.input.ownerName
       return `
-      ${name} - 
+      ${name} -
       ${this.$moment(e.start).format('HH:mm')} →
       ${this.$moment(e.end).format('HH:mm')}
       `
