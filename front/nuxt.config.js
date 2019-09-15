@@ -38,7 +38,7 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: [],
+  plugins: ['~/plugins/auth.js'],
   /*
    ** Nuxt.js dev-modules
    */
@@ -69,7 +69,8 @@ export default {
    */
   axios: {
     host: 'localhost',
-    port: '3001'
+    port: '3001',
+    credentials: true
   },
   /*
    ** vuetify module configuration

@@ -8,6 +8,16 @@
         </v-avatar>
         <span>PAE UTC</span>
       </v-toolbar-title>
+      <div class="flex-grow-1"></div>
+      <v-btn
+        v-if="!$store.state.auth.isLoggedIn"
+        href="http://localhost:3001/auth"
+      >
+        Connexion <v-icon right>mdi-login</v-icon>
+      </v-btn>
+      <v-btn v-else href="http://localhost:3001/auth/logout">
+        Déconnexion <v-icon right>mdi-logout</v-icon>
+      </v-btn>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" app :clipped="clipped">
@@ -57,7 +67,7 @@ export default {
         {
           title: 'Réservations',
           icon: 'mdi-calendar',
-          to: 'booking',
+          to: '/booking',
           color: 'blue'
         }
       ]

@@ -5,11 +5,6 @@
 <script>
 export default {
   name: 'Accueil',
-  data() {
-    return {
-      helloWorld: ''
-    }
-  },
   head() {
     return {
       title: 'Accueil'
