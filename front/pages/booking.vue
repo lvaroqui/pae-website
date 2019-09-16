@@ -2,6 +2,18 @@
   <v-row no-gutters>
     <v-col>
       <!-- TOOLBAR -->
+      <v-toolbar class="mt-2" flat dense>
+        <v-checkbox
+          v-for="room in rooms"
+          :key="room.name"
+          v-model="selectedRooms"
+          :label="room.name"
+          :value="room.name"
+          :color="room.color"
+          class="mr-2"
+        ></v-checkbox>
+      </v-toolbar>
+      <!-- TOOLBAR -->
       <v-toolbar flat dense>
         <v-btn color="primary" outlined class="mr-4" @click="setToday">
           Aujourd'hui
@@ -40,8 +52,9 @@
               return interval.time
             }
           "
-          :events="events"
+          :events="calendarEvents"
           :event-name="giveEventName"
+          :event-color="(e) => e.color"
           :type="type"
           :max-days="6"
           :weekdays="[1, 2, 3, 4, 5, 6]"
@@ -56,7 +69,6 @@
           v-model="selectedOpen"
           :close-on-content-click="false"
           :activator="selectedElement"
-          full-width
           offset-x
         >
           <v-card color="grey lighten-4" min-width="350px" flat>
@@ -125,30 +137,63 @@ export default {
       focus: null,
       start: null,
       end: null,
+      selectedRooms: [],
       selectedEvent: {},
       selectedElement: null,
       selectedOpen: false,
-      events: [
+      rooms: [
         {
-          id: 1,
-          owner: 'lvaroqui',
-          ownerName: 'Luc Varoqui',
-          ownerEmail: 'luc.varoqui@etu.utc.fr',
-          ownerPhone: '06.89.88.10.94',
-          details: 'Répétition hebdomadaire',
-          asso: 'Stravaganza',
-          start: '2019-09-09 19:30',
-          end: '2019-09-09 21:30'
+          name: 'FA109',
+          color: 'orange',
+          events: [
+            {
+              id: 1,
+              owner: 'lvaroqui',
+              ownerName: 'Luc Varoqui',
+              ownerEmail: 'luc.varoqui@etu.utc.fr',
+              ownerPhone: '06.89.88.10.94',
+              details: 'Répétition hebdomadaire',
+              asso: 'Stravaganza',
+              start: '2019-09-16 19:30',
+              end: '2019-09-16 21:30'
+            },
+            {
+              id: 2,
+              owner: 'lvaroqui',
+              ownerName: 'Luc Varoqui',
+              ownerEmail: 'luc.varoqui@etu.utc.fr',
+              ownerPhone: '06.89.88.10.94',
+              details: 'Répétition hebdomadaire',
+              start: '2019-09-17 19:30',
+              end: '2019-09-17 21:30'
+            }
+          ]
         },
         {
-          id: 2,
-          owner: 'lvaroqui',
-          ownerName: 'Luc Varoqui',
-          ownerEmail: 'luc.varoqui@etu.utc.fr',
-          ownerPhone: '06.89.88.10.94',
-          details: 'Répétition hebdomadaire',
-          start: '2019-09-10 19:30',
-          end: '2019-09-10 21:30'
+          name: 'FA107',
+          color: 'green',
+          events: [
+            {
+              id: 1,
+              owner: 'lvaroqui',
+              ownerName: 'Luc Varoqui',
+              ownerEmail: 'luc.varoqui@etu.utc.fr',
+              ownerPhone: '06.89.88.10.94',
+              details: 'Répétition hebdomadaire',
+              asso: 'Capharnaüm',
+              start: '2019-09-16 17:30',
+              end: '2019-09-16 18:30'
+            },
+            {
+              id: 2,
+              owner: 'cforesti',
+              ownerName: 'Cécile Forestier',
+              ownerEmail: 'cforest@etu.utc.fr',
+              details: 'Répétition hebdomadaire',
+              start: '2019-09-18 19:30',
+              end: '2019-09-18 21:30'
+            }
+          ]
         }
       ]
     }
@@ -172,7 +217,26 @@ export default {
         default:
           return 'week'
       }
+    },
+    calendarEvents() {
+      let events = []
+      this.rooms.forEach((room) => {
+        if (this.selectedRooms.find((r) => r === room.name)) {
+          room.events.forEach((event) => {
+            event.room = room.name
+            event.color = room.color
+          })
+          events = events.concat(room.events)
+        }
+      })
+      return events
     }
+  },
+  mounted() {
+    // TODO: Fetch rooms
+    this.rooms.forEach((room) => {
+      this.selectedRooms.push(room.name)
+    })
   },
   beforeMount() {
     this.setToday()
@@ -201,12 +265,14 @@ export default {
       this.$refs.eventModifier.showModal(null)
     },
     handleCalendarClick(day) {
-      const now = this.$moment(`${day.date} ${day.time}`).startOf('h')
-      const event = {
-        start: now.format('YYYY-MM-DD HH:mm'),
-        end: now.add(30, 'm').format('YYYY-MM-DD HH:mm')
+      if (!this.selectedOpen) {
+        const now = this.$moment(`${day.date} ${day.time}`).startOf('h')
+        const event = {
+          start: now.format('YYYY-MM-DD HH:mm'),
+          end: now.add(30, 'm').format('YYYY-MM-DD HH:mm')
+        }
+        this.$refs.eventModifier.showModal(event)
       }
-      this.$refs.eventModifier.showModal(event)
     },
     handleDeleteEventClick() {
       // TODO: API LINK DELETE
