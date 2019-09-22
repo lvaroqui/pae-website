@@ -28,9 +28,9 @@ app.use(cookieSession({
 app.use(passport.initialize())
 app.use(passport.session())
 
-app.use('/rooms', roomsRouter)
 app.use('/auth', authRouter)
-app.use('/users', usersRouter)
+app.use('/api/rooms', roomsRouter)
+app.use('/api/users', usersRouter)
 
 app.listen(3001, () => {
   console.log('Listening on port 3001')

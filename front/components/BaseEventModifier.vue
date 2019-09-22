@@ -7,7 +7,7 @@
       <v-card-text>
         <v-select
           v-model="room"
-          :items="rooms"
+          :items="roomsList"
           prepend-icon="mdi-home"
           label="Salle"
         />
@@ -58,46 +58,64 @@ export default {
   data() {
     return {
       edit: false,
-      room: '',
+      room: null,
       date: '',
       startTime: '',
       endTime: '',
       details: '',
-      localEvent: {}
+      eventId: null
+    }
+  },
+  computed: {
+    roomsList() {
+      return this.rooms.map((r) => {
+        return { value: r.id, text: r.name }
+      })
     }
   },
   methods: {
     showModal(event) {
       if (event) {
+        this.eventId = event.id
         this.date = this.$moment(event.start).format('YYYY-MM-DD')
         this.startTime = this.$moment(event.start).format('HH:mm')
         this.endTime = this.$moment(event.end).format('HH:mm')
         this.details = event.details
-        this.localEvent = event
+        this.room = event.room
       }
       this.edit = true
     },
     validate() {
-      // TODO: API Call
-
-      // Emit input event
-      this.$emit('input', {
-        ...this.localEvent,
-        room: this.room,
-        start: `${this.date} ${this.startTime}`,
-        end: `${this.date} ${this.endTime}`,
+      const event = {
+        roomId: this.room,
+        start: this.$moment(`${this.date} ${this.startTime}`).toDate(),
+        end: this.$moment(`${this.date} ${this.endTime}`).toDate(),
         details: this.details
-      })
+      }
 
-      this.close()
+      // PATCH
+      if (this.eventId) {
+        this.$axios.patch(`/rooms/event/${this.eventId}`, event).then(() => {
+          this.$emit('input')
+          this.close()
+        })
+      }
+      // POST
+      else {
+        this.$axios.post('/rooms/event', event).then(() => {
+          this.$emit('input')
+          this.close()
+        })
+      }
     },
     close() {
       // Reset Local State
+      this.eventId = null
+      this.room = null
       this.date = ''
       this.startTime = ''
       this.endTime = ''
       this.details = ''
-      this.localEvent = {}
 
       // Hide Modal
       this.edit = false

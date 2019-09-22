@@ -75,12 +75,25 @@
           :activator="selectedElement"
           offset-x
         >
-          <v-card color="grey lighten-4" min-width="350px" flat>
+          <v-card
+            v-if="selectedOpen"
+            color="grey lighten-4"
+            min-width="350px"
+            flat
+          >
             <v-toolbar :color="selectedEvent.color" dark>
-              <v-btn icon @click="handleEditEventClick">
+              <v-btn
+                v-if="isOwner(selectedEvent)"
+                icon
+                @click="handleEditEventClick"
+              >
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
-              <v-btn icon @click="handleDeleteEventClick">
+              <v-btn
+                v-if="isOwner(selectedEvent)"
+                icon
+                @click="handleDeleteEventClick"
+              >
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
               <v-toolbar-title>{{ selectedEvent.asso }}</v-toolbar-title>
@@ -103,20 +116,14 @@
                 <v-icon>mdi-information-outline</v-icon>
                 {{ selectedEvent.details }}
               </p>
-              <p>
+              <p v-if="selectedEvent.User">
                 <v-icon>mdi-account-box-outline</v-icon>
-                {{ selectedEvent.ownerName }}
+                {{ selectedEvent.User.displayName }}
               </p>
-              <p>
+              <p v-if="selectedEvent.User">
                 <v-icon>mdi-email-outline</v-icon>
-                <a :href="`mailto:${selectedEvent.ownerEmail}`">
-                  {{ selectedEvent.ownerEmail }}
-                </a>
-              </p>
-              <p>
-                <v-icon>mdi-phone-outline</v-icon>
-                <a :href="`tel:${selectedEvent.ownerPhone}`">
-                  {{ selectedEvent.ownerPhone }}
+                <a :href="`mailto:${selectedEvent.User.email}`">
+                  {{ selectedEvent.User.email }}
                 </a>
               </p>
             </v-card-text>
@@ -126,7 +133,11 @@
         <!-- EDIT DIALOG -->
         <BaseEventModifier
           ref="eventModifier"
-          :rooms="rooms.map((r) => r.name)"
+          :rooms="
+            rooms.map((r) => {
+              return { id: r.id, name: r.name }
+            })
+          "
           @input="handleEventModification"
         />
       </v-sheet>
@@ -149,61 +160,7 @@ export default {
       selectedEvent: {},
       selectedElement: null,
       selectedOpen: false,
-      rooms: [
-        {
-          name: 'FA109',
-          color: 'orange',
-          events: [
-            {
-              id: 1,
-              owner: 'lvaroqui',
-              ownerName: 'Luc Varoqui',
-              ownerEmail: 'luc.varoqui@etu.utc.fr',
-              ownerPhone: '06.89.88.10.94',
-              details: 'Répétition hebdomadaire',
-              asso: 'Stravaganza',
-              start: '2019-09-16 19:30',
-              end: '2019-09-16 21:30'
-            },
-            {
-              id: 2,
-              owner: 'lvaroqui',
-              ownerName: 'Luc Varoqui',
-              ownerEmail: 'luc.varoqui@etu.utc.fr',
-              ownerPhone: '06.89.88.10.94',
-              details: 'Répétition hebdomadaire',
-              start: '2019-09-17 19:30',
-              end: '2019-09-17 21:30'
-            }
-          ]
-        },
-        {
-          name: 'FA107',
-          color: 'green',
-          events: [
-            {
-              id: 1,
-              owner: 'lvaroqui',
-              ownerName: 'Luc Varoqui',
-              ownerEmail: 'luc.varoqui@etu.utc.fr',
-              ownerPhone: '06.89.88.10.94',
-              details: 'Répétition hebdomadaire',
-              asso: 'Capharnaüm',
-              start: '2019-09-16 17:30',
-              end: '2019-09-16 18:30'
-            },
-            {
-              id: 2,
-              owner: 'cforesti',
-              ownerName: 'Cécile Forestier',
-              ownerEmail: 'cforest@etu.utc.fr',
-              details: 'Répétition hebdomadaire',
-              start: '2019-09-18 19:30',
-              end: '2019-09-18 21:30'
-            }
-          ]
-        }
-      ]
+      rooms: []
     }
   },
   computed: {
@@ -230,18 +187,18 @@ export default {
       let events = []
       this.rooms.forEach((room) => {
         if (this.selectedRooms.find((r) => r === room.name)) {
-          room.events.forEach((event) => {
-            event.room = room.name
+          room.Events.forEach((event) => {
+            event.room = room.id
             event.color = room.color
           })
-          events = events.concat(room.events)
+          events = events.concat(room.Events)
         }
       })
       return events
     }
   },
-  mounted() {
-    // TODO: Fetch rooms
+  async mounted() {
+    await this.fetchEvents()
     this.rooms.forEach((room) => {
       this.selectedRooms.push(room.name)
     })
@@ -250,6 +207,14 @@ export default {
     this.setToday()
   },
   methods: {
+    async fetchEvents() {
+      await this.$axios.get(`/rooms/${this.focus}`).then((res) => {
+        this.rooms = res.data
+      })
+    },
+    isOwner(event) {
+      return event.User.id === this.$store.state.auth.user.id
+    },
     showEvent({ nativeEvent, event }) {
       const open = () => {
         this.selectedEvent = { ...event }
@@ -283,24 +248,27 @@ export default {
       }
     },
     handleDeleteEventClick() {
-      // TODO: API LINK DELETE
-      this.events = this.events.filter((e) => e.id !== this.selectedEvent.id)
-      this.selectedEvent = {}
-      this.selectedElement = null
-      this.selectedOpen = false
+      this.$axios
+        .delete(`/rooms/event/${this.selectedEvent.id}`)
+        .then((res) => {
+          this.fetchEvents()
+          this.selectedEvent = {}
+          this.selectedElement = null
+          this.selectedOpen = false
+        })
     },
-    handleEventModification() {
-      // TODO: API Call
+    async handleEventModification() {
+      await this.fetchEvents()
     },
     giveEventName(e) {
-      const name = e.input.asso ? e.input.asso : e.input.ownerName
+      const name = e.input.asso ? e.input.asso : e.input.User.displayName
       return `
       ${name} -
       ${this.$moment(e.start).format('HH:mm')} →
       ${this.$moment(e.end).format('HH:mm')}
       `
     },
-    prev() {
+    async prev() {
       if (this.type === 'day') {
         const now = this.$moment(this.focus)
         now.subtract(1, 'd')
@@ -311,8 +279,9 @@ export default {
       } else {
         this.$refs.calendar.prev()
       }
+      await this.fetchEvents()
     },
-    next() {
+    async next() {
       if (this.type === 'day') {
         const now = this.$moment(this.focus)
         now.add(1, 'd')
@@ -323,6 +292,7 @@ export default {
       } else {
         this.$refs.calendar.next()
       }
+      await this.fetchEvents()
     },
     setToday() {
       const now = this.$moment()

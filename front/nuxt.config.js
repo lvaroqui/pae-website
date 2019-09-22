@@ -70,7 +70,8 @@ export default {
   axios: {
     host: 'localhost',
     port: '3001',
-    credentials: true
+    credentials: true,
+    prefix: '/api'
   },
   /*
    ** vuetify module configuration
@@ -104,6 +105,8 @@ export default {
     /*
      ** You can extend webpack config here
      */
-    extend(config, ctx) {}
+    extend(config, ctx) {
+      config.devtool = '#source-map'
+    }
   }
 }
