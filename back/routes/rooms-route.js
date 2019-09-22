@@ -12,10 +12,14 @@ const requireAuth = (req, res, next) => {
   next()
 }
 
-router.use(requireAuth)
+// router.use(requireAuth)
 router.get('/', function(req, res) {
-  console.log(req.user)
-  models.Room.findAll()
+  models.Room.findAll({
+    include: [{
+      model: models.Event,
+      include: [{model: models.User}]
+    }]
+  })
   .then((rooms) => {
     res.json(rooms)
   })
