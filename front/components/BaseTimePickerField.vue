@@ -19,6 +19,7 @@
           :label="label"
           prepend-icon="mdi-clock-outline"
           readonly
+          :rules="rules"
           v-on="on"
         ></v-text-field>
       </template>
@@ -46,6 +47,12 @@ export default {
     value: {
       type: String,
       required: true
+    },
+    rules: {
+      type: Array,
+      default: () => {
+        return []
+      }
     }
   },
   data() {

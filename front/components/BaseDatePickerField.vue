@@ -16,6 +16,7 @@
           :label="label"
           prepend-icon="mdi-calendar-outline"
           readonly
+          :rules="rules"
           v-on="on"
         />
       </template>
@@ -40,6 +41,12 @@ export default {
     value: {
       type: String,
       required: true
+    },
+    rules: {
+      type: Array,
+      default: () => {
+        return []
+      }
     }
   },
   data() {

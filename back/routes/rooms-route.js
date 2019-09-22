@@ -57,31 +57,28 @@ router.post('/event', function(req, res) {
   event.setRoom(req.body.roomId, {save: false})
   event.setUser(req.user.id, {save: false})
   event.save()
+  .catch((err) => {
+    res.status(400).send(err.errors)
+  })
   .then(() => {
     res.status(200).send()
   })
-  .catch(() => {
-    res.status(400).send()
-  })
 });
 
-router.patch('/event/:id', checkAuthorization, function(req, res) {
-  models.Event.findByPk(req.params.id).then(event => {
-    event.setRoom(req.body.roomId, {save: false})
-    event.update({
-      start: req.body.start,
-      end: req.body.end,
-      details: req.body.details
-    })
-    event.save()
-    .then(() => {
-      res.status(200).send()
-    })
-    .catch(() => {
-      res.status(400).send()
-    })
+router.patch('/event/:id', checkAuthorization, async function(req, res) {
+  const event = await models.Event.findByPk(req.params.id)
+  event.setRoom(req.body.roomId, {save: false})
+  event.update({
+    start: req.body.start,
+    end: req.body.end,
+    details: req.body.details
   })
-  res.status(200).send()
+  .catch((err) => {
+    res.status(400).send(err.errors)
+  })
+  .then(() => {
+    res.status(200).send()
+  })
 });
 
 router.delete('/event/:id', checkAuthorization, function(req, res) {

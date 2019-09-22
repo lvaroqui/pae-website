@@ -5,38 +5,49 @@
         Modification d'évènement
       </v-card-title>
       <v-card-text>
-        <v-select
-          v-model="room"
-          :items="roomsList"
-          prepend-icon="mdi-home"
-          label="Salle"
-        />
-        <v-text-field
-          v-model="details"
-          prepend-icon="mdi-information-outline"
-          label="Détails"
-        />
-        <BaseDatePickerField v-model="date" label="Date" />
-        <BaseTimePickerField
-          v-model="startTime"
-          min="08:00"
-          max="21:00"
-          :allowed-minutes="[0, 15, 30, 45]"
-          label="Heure de début"
-          @input="handleStartTimeInput"
-        />
-        <BaseTimePickerField
-          v-model="endTime"
-          :min="startTime"
-          max="21:30"
-          :allowed-minutes="[0, 15, 30, 45]"
-          label="Heure de fin"
-        />
+        <v-form ref="form" v-model="valid">
+          <v-select
+            v-model="room"
+            :items="roomsList"
+            prepend-icon="mdi-home"
+            label="Salle"
+            :rules="required"
+          />
+          <v-text-field
+            v-model="details"
+            prepend-icon="mdi-information-outline"
+            label="Détails"
+            :rules="required"
+          />
+          <BaseDatePickerField v-model="date" label="Date" :rules="required" />
+          <BaseTimePickerField
+            v-model="startTime"
+            min="08:00"
+            max="21:00"
+            :allowed-minutes="[0, 15, 30, 45]"
+            label="Heure de début"
+            :rules="required"
+            @input="handleStartTimeInput"
+          />
+          <BaseTimePickerField
+            v-model="endTime"
+            :min="startTime"
+            max="21:30"
+            :allowed-minutes="[0, 15, 30, 45]"
+            label="Heure de fin"
+            :rules="required"
+          />
+          <div class="red--text">
+            <p v-for="error in errors" :key="error">{{ error }}</p>
+          </div>
+        </v-form>
       </v-card-text>
       <v-card-actions>
         <v-btn text color="red" @click="close">Annuler</v-btn>
         <div class="flex-grow-1"></div>
-        <v-btn text color="green" @click="validate">Valider</v-btn>
+        <v-btn :disabled="!valid" text color="green" @click="validate">
+          Valider
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -57,13 +68,16 @@ export default {
   },
   data() {
     return {
+      required: [(v) => !!v || 'Ce champ est nécessaire !'],
+      valid: false,
       edit: false,
       room: null,
       date: '',
       startTime: '',
       endTime: '',
       details: '',
-      eventId: null
+      eventId: null,
+      errors: []
     }
   },
   computed: {
@@ -84,6 +98,9 @@ export default {
         this.room = event.room
       }
       this.edit = true
+      this.$nextTick(() => {
+        this.$refs.form.resetValidation()
+      })
     },
     validate() {
       const event = {
@@ -95,20 +112,33 @@ export default {
 
       // PATCH
       if (this.eventId) {
-        this.$axios.patch(`/rooms/event/${this.eventId}`, event).then(() => {
-          this.$emit('input')
-          this.close()
-        })
+        this.$axios
+          .patch(`/rooms/event/${this.eventId}`, event)
+          .then(() => {
+            this.$emit('input')
+            this.close()
+          })
+          .catch((err) => {
+            this.errors = err.response.data.map((e) => e.message)
+          })
       }
       // POST
       else {
-        this.$axios.post('/rooms/event', event).then(() => {
-          this.$emit('input')
-          this.close()
-        })
+        this.$axios
+          .post('/rooms/event', event)
+          .then(() => {
+            this.$emit('input')
+            this.close()
+          })
+          .catch((err) => {
+            this.errors = err.response.data.map((e) => e.message)
+          })
       }
     },
     close() {
+      // Hide Modal
+      this.edit = false
+
       // Reset Local State
       this.eventId = null
       this.room = null
@@ -116,9 +146,7 @@ export default {
       this.startTime = ''
       this.endTime = ''
       this.details = ''
-
-      // Hide Modal
-      this.edit = false
+      this.errors = []
     },
     handleStartTimeInput() {
       if (this.startTime > this.endTime) {
