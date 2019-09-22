@@ -7,6 +7,14 @@ module.exports = {
         primaryKey: true,
         allowNull: false
       },
+      displayName: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
+      email: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
       isMu0x: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,

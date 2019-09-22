@@ -13,7 +13,13 @@ let client = new OAuth2Strategy({
   scope: 'user-get-info'
 },
 (accessToken, refreshToken, profile, done) => {
-  models.User.findOrCreate({ where: {id: profile.id}})
+  console.log(profile)
+  models.User.findOrCreate({ 
+    where: { id: profile.id }, 
+    defaults: {
+      displayName: `${ profile.firstname } ${ profile.lastname }`,
+      email: profile.email
+    }})
   .then(([user, created]) => {
     done(null, user)
   })

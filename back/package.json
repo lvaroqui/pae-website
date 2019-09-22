@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
-    "db:reset": "sequelize-cli db:drop && sequelize-cli db:create && sequelize-cli db:migrate && sequelize-cli db:seed:all"
+    "db:reset": "sequelize-cli db:drop && sequelize-cli db:create && sequelize-cli db:migrate",
+    "db:seed": "sequelize-cli db:seed:all"
   },
   "author": "Luc Varoqui",
   "license": "ISC",
