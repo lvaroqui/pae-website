@@ -12,6 +12,18 @@
           :color="room.color"
           class="mr-2"
         ></v-checkbox>
+        <div class="flex-grow-1"></div>
+
+        <v-btn
+          fab
+          color="primary"
+          outlined
+          small
+          depressed
+          @click="handleCreateEventClick"
+        >
+          <v-icon small>mdi-plus</v-icon>
+        </v-btn>
       </v-toolbar>
       <!-- TOOLBAR -->
       <v-toolbar flat dense>
@@ -24,17 +36,9 @@
         <v-btn fab text small @click="next">
           <v-icon small>mdi-chevron-right</v-icon>
         </v-btn>
-        <div class="flex-grow-1"></div>
-        <v-btn
-          fab
-          color="primary"
-          outlined
-          small
-          depressed
-          @click="handleCreateEventClick"
-        >
-          <v-icon small>mdi-plus</v-icon>
-        </v-btn>
+        <div style="text-transform: capitalize">
+          {{ $moment(focus).format('MMMM YYYY') }}
+        </div>
       </v-toolbar>
 
       <!-- CALENDAR -->
@@ -120,7 +124,11 @@
         </v-menu>
 
         <!-- EDIT DIALOG -->
-        <BaseEventModifier ref="eventModifier" @input="updateOrCreateEvent" />
+        <BaseEventModifier
+          ref="eventModifier"
+          :rooms="rooms.map((r) => r.name)"
+          @input="handleEventModification"
+        />
       </v-sheet>
     </v-col>
   </v-row>
@@ -281,19 +289,8 @@ export default {
       this.selectedElement = null
       this.selectedOpen = false
     },
-    updateOrCreateEvent(event) {
-      // Update
-      if (event.id) {
-        this.events = this.events.filter((e) => e.id !== event.id)
-        this.events.push(event)
-        // TODO: API LINK UPDATE
-      }
-      // Create
-      else {
-        event.id = this.events[this.events.length - 1].id + 1
-        // TODO: API LINK DELETE
-        this.events.push(event)
-      }
+    handleEventModification() {
+      // TODO: API Call
     },
     giveEventName(e) {
       const name = e.input.asso ? e.input.asso : e.input.ownerName

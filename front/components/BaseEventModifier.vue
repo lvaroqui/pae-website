@@ -5,6 +5,12 @@
         Modification d'évènement
       </v-card-title>
       <v-card-text>
+        <v-select
+          v-model="room"
+          :items="rooms"
+          prepend-icon="mdi-home"
+          label="Salle"
+        />
         <v-text-field
           v-model="details"
           prepend-icon="mdi-information-outline"
@@ -43,9 +49,16 @@ import BaseDatePickerField from '~/components/BaseDatePickerField'
 export default {
   name: 'BaseEventModifier',
   components: { BaseTimePickerField, BaseDatePickerField },
+  props: {
+    rooms: {
+      type: Array,
+      required: true
+    }
+  },
   data() {
     return {
       edit: false,
+      room: '',
       date: '',
       startTime: '',
       endTime: '',
@@ -65,9 +78,12 @@ export default {
       this.edit = true
     },
     validate() {
+      // TODO: API Call
+
       // Emit input event
       this.$emit('input', {
         ...this.localEvent,
+        room: this.room,
         start: `${this.date} ${this.startTime}`,
         end: `${this.date} ${this.endTime}`,
         details: this.details
