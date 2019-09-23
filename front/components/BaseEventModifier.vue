@@ -51,7 +51,7 @@
       <v-card-actions>
         <v-btn text color="red" @click="close">Annuler</v-btn>
         <div class="flex-grow-1"></div>
-        <v-btn :disabled="!valid" text color="green" @click="validate">
+        <v-btn :disabled="!valid" text color="green" @click="submit">
           Valider
         </v-btn>
       </v-card-actions>
@@ -74,25 +74,30 @@ export default {
   },
   data() {
     return {
-      required: [(v) => !!v || 'Ce champ est nécessaire !'],
-      valid: false,
-      edit: false,
+      required: [(v) => !!v || 'Ce champ est nécessaire !'], // Verification rule
+      valid: false, // Is the form valid ?
+      edit: false, // Is the modal displayed ?
+      errors: [], // List of errors returned by the API
+
+      // Edited event attributes values
       roomId: null,
       assoId: null,
       date: '',
       startTime: '',
       endTime: '',
       details: '',
-      eventId: null,
-      errors: []
+      eventId: null
     }
   },
   computed: {
+    // List of rooms passed by parent
     roomsList() {
       return this.rooms.map((r) => {
         return { value: r.id, text: r.name }
       })
     },
+
+    // List of available assos based on current user
     assosList() {
       const list = this.$store.state.auth.user.assos.map((a) => {
         return { value: a.id, text: a.name }
@@ -102,8 +107,11 @@ export default {
     }
   },
   methods: {
+    // Show the modal, called by parent
     showModal(event) {
+      // If an event is passed, take it's values and convert it to match Pickers format
       if (event) {
+        // TODO: use computed getters and setters so abstract manual conversion
         this.eventId = event.id
         this.date = this.$moment(event.start).format('YYYY-MM-DD')
         this.startTime = this.$moment(event.start).format('HH:mm')
@@ -117,7 +125,9 @@ export default {
         this.$refs.form.resetValidation()
       })
     },
-    validate() {
+
+    // Submit modifications to API
+    submit() {
       const event = {
         roomId: this.roomId,
         assoId: this.assoId,
@@ -126,7 +136,7 @@ export default {
         details: this.details
       }
 
-      // PATCH
+      // PATCH : an eventId is set
       if (this.eventId) {
         this.$axios
           .patch(`/rooms/event/${this.eventId}`, event)
@@ -138,7 +148,7 @@ export default {
             this.errors = err.response.data.map((e) => e.message)
           })
       }
-      // POST
+      // POST : no eventId is set
       else {
         this.$axios
           .post('/rooms/event', event)
@@ -151,6 +161,7 @@ export default {
           })
       }
     },
+    // Close the modal
     close() {
       // Hide Modal
       this.edit = false
@@ -165,8 +176,9 @@ export default {
       this.details = ''
       this.errors = []
     },
+    // Function that updates endTime so that it is always after startTime
     handleStartTimeInput() {
-      if (this.startTime > this.endTime) {
+      if (this.startTime >= this.endTime) {
         this.endTime = this.$moment
           .utc(this.startTime, 'HH:mm')
           .add(15, 'm')

@@ -38,10 +38,10 @@
         >
           Aujourd'hui
         </v-btn>
-        <v-btn fab text small @click="prev">
+        <v-btn fab text small @click="handlePrevClick">
           <v-icon small>mdi-chevron-left</v-icon>
         </v-btn>
-        <v-btn fab text small @click="next">
+        <v-btn fab text small @click="handleNextClick">
           <v-icon small>mdi-chevron-right</v-icon>
         </v-btn>
         <div style="text-transform: capitalize">
@@ -67,11 +67,10 @@
           :events="calendarEvents"
           :event-name="giveEventName"
           :event-color="(e) => e.color"
-          :type="type"
+          :type="calendarType"
           :max-days="6"
           :weekdays="[1, 2, 3, 4, 5, 6]"
-          @change="updateRange"
-          @click:event="showEvent"
+          @click:event="handleEventClick"
           @click:time="handleCalendarClick"
         />
 
@@ -82,12 +81,7 @@
           :activator="selectedElement"
           offset-x
         >
-          <v-card
-            v-if="selectedOpen"
-            color="grey lighten-4"
-            min-width="350px"
-            flat
-          >
+          <v-card color="grey lighten-4" min-width="350px" flat>
             <v-toolbar :color="selectedEvent.color" dark>
               <v-btn
                 v-if="isOwner(selectedEvent)"
@@ -110,19 +104,6 @@
               </v-btn>
             </v-toolbar>
             <v-card-text>
-              <p>
-                <v-icon>mdi-calendar-outline</v-icon>
-                {{ $moment(selectedEvent.start).format('LL') }}
-              </p>
-              <p>
-                <v-icon>mdi-clock-outline</v-icon>
-                {{ $moment(selectedEvent.start).format('HH:mm') }} →
-                {{ $moment(selectedEvent.end).format('HH:mm') }}
-              </p>
-              <p>
-                <v-icon>mdi-information-outline</v-icon>
-                {{ selectedEvent.details }}
-              </p>
               <p v-if="selectedEvent.User">
                 <v-icon>mdi-account-box-outline</v-icon>
                 {{ selectedEvent.User.displayName }}
@@ -132,6 +113,23 @@
                 <a :href="`mailto:${selectedEvent.User.email}`">
                   {{ selectedEvent.User.email }}
                 </a>
+              </p>
+              <p v-if="selectedEvent.Asso">
+                <v-icon>mdi-music-clef-treble</v-icon>
+                {{ selectedEvent.Asso.name }}
+              </p>
+              <p>
+                <v-icon>mdi-information-outline</v-icon>
+                {{ selectedEvent.details }}
+              </p>
+              <p>
+                <v-icon>mdi-calendar-outline</v-icon>
+                {{ $moment(selectedEvent.start).format('LL') }}
+              </p>
+              <p>
+                <v-icon>mdi-clock-outline</v-icon>
+                {{ $moment(selectedEvent.start).format('HH:mm') }} →
+                {{ $moment(selectedEvent.end).format('HH:mm') }}
               </p>
             </v-card-text>
           </v-card>
@@ -161,18 +159,24 @@ export default {
   middleware: ['authRequired'],
   data() {
     return {
-      focus: null,
-      start: null,
-      end: null,
-      selectedRooms: [],
-      selectedEvent: {},
-      selectedElement: null,
-      selectedOpen: false,
-      rooms: []
+      // Calendar
+      focus: null, // Date at which the Calendar is set
+      start: null, // Start of the Calendar
+      end: null, // End of the Calendar
+
+      // Rooms
+      rooms: [], // Contains rooms and all of their events
+      selectedRooms: [], // Room currently displayed
+
+      // For the Pop Over
+      selectedEvent: {}, // The event corresponding to the clicked event
+      selectedElement: null, // The element corresponding to the clicked event
+      selectedOpen: false // Is the Pop Over menu open
     }
   },
   computed: {
-    type() {
+    // Switch type accordingly to Vuetify responsive breakpoints
+    calendarType() {
       switch (this.$vuetify.breakpoint.name) {
         case 'xs':
           return 'day'
@@ -188,6 +192,9 @@ export default {
           return 'week'
       }
     },
+
+    // Return a flatten array with every events to display
+    // The room Id and color are set on every event to ease display
     calendarEvents() {
       let events = []
       this.rooms.forEach((room) => {
@@ -202,6 +209,11 @@ export default {
       return events
     }
   },
+
+  beforeMount() {
+    this.setToday()
+  },
+
   async mounted() {
     // Fetching all events for current week
     await this.fetchEvents()
@@ -209,38 +221,36 @@ export default {
     // By default, we select every room
     this.selectedRooms = this.rooms.map((r) => r.name)
   },
-  beforeMount() {
-    this.setToday()
-  },
+
   methods: {
+    // Fetch all events for the current week
     async fetchEvents() {
       this.rooms = (await this.$axios.get(`/rooms/${this.focus}`)).data
     },
-    isOwner(event) {
-      return event.User.id === this.$store.state.auth.user.id
-    },
-    showEvent({ nativeEvent, event }) {
+    handleEventClick({ nativeEvent, event }) {
       const open = () => {
         this.selectedEvent = { ...event }
         this.selectedElement = nativeEvent.target
-        setTimeout(() => (this.selectedOpen = true), 10)
+        setTimeout(() => (this.selectedOpen = true), 50)
       }
 
       if (this.selectedOpen) {
         this.selectedOpen = false
-        setTimeout(open, 10)
+        setTimeout(open, 50)
       } else {
         open()
       }
-
       nativeEvent.stopPropagation()
     },
+    // Display the event modifier for the selected event
     handleEditEventClick() {
       this.$refs.eventModifier.showModal(this.selectedEvent)
     },
+    // Display the event modifier to create a new event
     handleCreateEventClick() {
       this.$refs.eventModifier.showModal(null)
     },
+    // Display the event modifier with preset for the clicked day
     handleCalendarClick(day) {
       if (!this.selectedOpen) {
         const now = this.$moment(`${day.date} ${day.time}`).startOf('h')
@@ -251,6 +261,7 @@ export default {
         this.$refs.eventModifier.showModal(event)
       }
     },
+    // Delete the event
     handleDeleteEventClick() {
       this.$axios
         .delete(`/rooms/event/${this.selectedEvent.id}`)
@@ -261,9 +272,66 @@ export default {
           this.selectedOpen = false
         })
     },
+    // Goes to previous day/week (depending on calendarType)
+    async handlePrevClick() {
+      const now = this.$moment(this.focus)
+
+      // In case of day type, skip sundays
+      if (this.calendarType === 'day') {
+        now.subtract(1, 'd')
+      } else {
+        now.subtract(7, 'd')
+      }
+
+      // Skip Sundays
+      if (now.day() === 0) {
+        now.subtract(1, 'd')
+      }
+
+      // Update focus
+      this.focus = now.format('YYYY-MM-DD')
+
+      // Fetch event for the new view
+      await this.fetchEvents()
+    },
+    // Goes to previous day/week (depending on calendarType)
+    async handleNextClick() {
+      const now = this.$moment(this.focus)
+
+      // In case of day type, skip sundays
+      if (this.calendarType === 'day') {
+        now.add(1, 'd')
+      } else {
+        now.add(7, 'd')
+      }
+
+      // Skip Sundays
+      if (now.day() === 0) {
+        now.add(1, 'd')
+      }
+
+      // Update focus
+      this.focus = now.format('YYYY-MM-DD')
+
+      // Fetch event for the new view
+      await this.fetchEvents()
+    },
+
+    // When an event is modified via EventModifier component, update components
     async handleEventModification() {
       await this.fetchEvents()
     },
+
+    // Check if the user is owner of the event (or admin)
+    isOwner(event) {
+      return (
+        event.User &&
+        (event.User.id === this.$store.state.auth.user.id ||
+          this.$store.state.auth.user.isAdmin)
+      )
+    },
+
+    // Given an event, returns the name to display on the Calendar
     giveEventName(e) {
       const name = e.input.Asso ? e.input.Asso.name : e.input.User.displayName
       return `
@@ -272,42 +340,14 @@ export default {
       ${this.$moment(e.end).format('HH:mm')}
       `
     },
-    async prev() {
-      if (this.type === 'day') {
-        const now = this.$moment(this.focus)
-        now.subtract(1, 'd')
-        if (now.day() === 0) {
-          now.subtract(1, 'd')
-        }
-        this.focus = now.format('YYYY-MM-DD')
-      } else {
-        this.$refs.calendar.prev()
-      }
-      await this.fetchEvents()
-    },
-    async next() {
-      if (this.type === 'day') {
-        const now = this.$moment(this.focus)
-        now.add(1, 'd')
-        if (now.day() === 0) {
-          now.add(1, 'd')
-        }
-        this.focus = now.format('YYYY-MM-DD')
-      } else {
-        this.$refs.calendar.next()
-      }
-      await this.fetchEvents()
-    },
+
+    // Set date to Today
     setToday() {
       const now = this.$moment()
       if (now.day() === 0) {
         now.add(1, 'd')
       }
       this.focus = now.format('YYYY-MM-DD')
-    },
-    updateRange({ start, end }) {
-      this.start = start
-      this.end = end
     }
   },
   head() {

@@ -57,7 +57,8 @@ export default {
   middleware: ['auth'],
   data() {
     return {
-      drawer: null,
+      drawer: null, // Is the nav drawer out ?
+      // TODO: hide booking to non auth users
       items: [
         {
           title: 'Accueil',
@@ -71,10 +72,11 @@ export default {
           to: '/booking',
           color: 'blue'
         }
-      ]
+      ] // List of menus
     }
   },
   computed: {
+    // Set the drawer and nav bar to clip on big dislays
     clipped() {
       switch (this.$vuetify.breakpoint.name) {
         case 'xs':
