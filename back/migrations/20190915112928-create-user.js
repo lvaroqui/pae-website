@@ -7,6 +7,12 @@ module.exports = {
         primaryKey: true,
         allowNull: false
       },
+      accessToken: {
+        type: Sequelize.STRING(2048)
+      },
+      refreshToken: {
+        type: Sequelize.STRING(2048)
+      },
       displayName: {
         allowNull: false,
         type: Sequelize.STRING,

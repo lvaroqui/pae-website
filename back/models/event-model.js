@@ -66,6 +66,7 @@ module.exports = (sequelize, DataTypes) => {
   Event.associate = function(models) {
     Event.belongsTo(models.User)
     Event.belongsTo(models.Room)
+    Event.belongsTo(models.Asso)
   };
   return Event;
 };

@@ -26,6 +26,15 @@ module.exports = {
         onDelete: 'SET NULL',
         type: Sequelize.INTEGER
       },
+      assoId: {
+        references: {
+          model: 'Assos',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+        type: Sequelize.STRING
+      },
       userId: {
         references: {
           model: 'Users',

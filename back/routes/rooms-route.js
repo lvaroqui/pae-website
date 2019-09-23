@@ -5,14 +5,7 @@ const moment  = require('moment')
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 
-const requireAuth = (req, res, next) => {
-  if (!req.user) {
-    return res.status(401).json({
-      message: 'Unauthenticated'
-    })
-  }
-  next()
-}
+const { requireAuth } = require('../utils')
 
 const checkAuthorization = (req, res, next) => {
   models.Event.findByPk(req.params.id).then(() => {
@@ -33,14 +26,21 @@ router.get('/:monday', function(req, res) {
     include: [{
       model: models.Event,
       required: false,
+      attributes: ['id', 'start', 'end', 'details'],
       where: {
         start: {
           [Op.between]: [monday.toDate(), saturday.toDate()],
         }
       },
       include: [{
-          model: models.User
-        }]
+          model: models.User,
+          attributes: ['id', 'displayName', 'email']
+        },
+        {
+          model: models.Asso,
+          attributes: ['id', 'name']
+        }
+      ]
     }]
   })
   .then((rooms) => {
@@ -54,6 +54,7 @@ router.post('/event', function(req, res) {
     end: req.body.end,
     details: req.body.details
   })
+  event.setAsso(req.body.assoId, {save: false})
   event.setRoom(req.body.roomId, {save: false})
   event.setUser(req.user.id, {save: false})
   event.save()
@@ -67,12 +68,14 @@ router.post('/event', function(req, res) {
 
 router.patch('/event/:id', checkAuthorization, async function(req, res) {
   const event = await models.Event.findByPk(req.params.id)
+
+  event.setAsso(req.body.assoId, {save: false})
   event.setRoom(req.body.roomId, {save: false})
-  event.update({
-    start: req.body.start,
-    end: req.body.end,
-    details: req.body.details
-  })
+  event.start = req.body.start,
+  event.end = req.body.end,
+  event.details = req.body.details
+
+  event.save()
   .catch((err) => {
     res.status(400).send(err.errors)
   })

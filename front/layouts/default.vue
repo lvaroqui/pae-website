@@ -54,6 +54,7 @@
 <script>
 export default {
   name: 'Default',
+  middleware: ['auth'],
   data() {
     return {
       drawer: null,

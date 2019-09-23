@@ -5,6 +5,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    accessToken: {
+      type: DataTypes.STRING,
+    },
+    refreshToken: {
+      type: DataTypes.STRING,
+    },
     email: {
       type: DataTypes.STRING,
       allowNull: false
@@ -22,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   User.associate = function(models) {
     User.hasMany(models.Event)
+    User.belongsToMany(models.Asso, { through: models.AssoUser })
   };
   return User;
 };

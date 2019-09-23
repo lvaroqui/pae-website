@@ -7,11 +7,17 @@
       <v-card-text>
         <v-form ref="form" v-model="valid">
           <v-select
-            v-model="room"
+            v-model="roomId"
             :items="roomsList"
             prepend-icon="mdi-home"
             label="Salle"
             :rules="required"
+          />
+          <v-select
+            v-model="assoId"
+            :items="assosList"
+            prepend-icon="mdi-music-clef-treble"
+            label="Asso"
           />
           <v-text-field
             v-model="details"
@@ -71,7 +77,8 @@ export default {
       required: [(v) => !!v || 'Ce champ est nécessaire !'],
       valid: false,
       edit: false,
-      room: null,
+      roomId: null,
+      assoId: null,
       date: '',
       startTime: '',
       endTime: '',
@@ -85,6 +92,13 @@ export default {
       return this.rooms.map((r) => {
         return { value: r.id, text: r.name }
       })
+    },
+    assosList() {
+      const list = this.$store.state.auth.user.assos.map((a) => {
+        return { value: a.id, text: a.name }
+      })
+      list.unshift({ value: null, text: 'Aucune' })
+      return list
     }
   },
   methods: {
@@ -95,7 +109,8 @@ export default {
         this.startTime = this.$moment(event.start).format('HH:mm')
         this.endTime = this.$moment(event.end).format('HH:mm')
         this.details = event.details
-        this.room = event.room
+        this.roomId = event.roomId
+        this.assoId = event.Asso ? event.Asso.id : null
       }
       this.edit = true
       this.$nextTick(() => {
@@ -104,7 +119,8 @@ export default {
     },
     validate() {
       const event = {
-        roomId: this.room,
+        roomId: this.roomId,
+        assoId: this.assoId,
         start: this.$moment(`${this.date} ${this.startTime}`).toDate(),
         end: this.$moment(`${this.date} ${this.endTime}`).toDate(),
         details: this.details
@@ -141,7 +157,8 @@ export default {
 
       // Reset Local State
       this.eventId = null
-      this.room = null
+      this.roomId = null
+      this.assoId = null
       this.date = ''
       this.startTime = ''
       this.endTime = ''

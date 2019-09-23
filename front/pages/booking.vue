@@ -27,7 +27,15 @@
       </v-toolbar>
       <!-- TOOLBAR -->
       <v-toolbar flat dense>
-        <v-btn color="primary" outlined class="mr-4" @click="setToday">
+        <v-btn
+          color="primary"
+          outlined
+          class="mr-4"
+          @click="
+            setToday()
+            fetchEvents()
+          "
+        >
           Aujourd'hui
         </v-btn>
         <v-btn fab text small @click="prev">
@@ -65,8 +73,7 @@
           @change="updateRange"
           @click:event="showEvent"
           @click:time="handleCalendarClick"
-        >
-        </v-calendar>
+        />
 
         <!-- POP OVER -->
         <v-menu
@@ -151,6 +158,7 @@ import BaseEventModifier from '~/components/BaseEventModifier'
 export default {
   name: 'Booking',
   components: { BaseEventModifier },
+  middleware: ['authRequired'],
   data() {
     return {
       focus: null,
@@ -164,9 +172,6 @@ export default {
     }
   },
   computed: {
-    today() {
-      return this.$moment().format('YYYY-MM-DD')
-    },
     type() {
       switch (this.$vuetify.breakpoint.name) {
         case 'xs':
@@ -187,30 +192,29 @@ export default {
       let events = []
       this.rooms.forEach((room) => {
         if (this.selectedRooms.find((r) => r === room.name)) {
-          room.Events.forEach((event) => {
-            event.room = room.id
-            event.color = room.color
-          })
-          events = events.concat(room.Events)
+          events = events.concat(
+            room.Events.map((event) => {
+              return { ...event, color: room.color, roomId: room.id }
+            })
+          )
         }
       })
       return events
     }
   },
   async mounted() {
+    // Fetching all events for current week
     await this.fetchEvents()
-    this.rooms.forEach((room) => {
-      this.selectedRooms.push(room.name)
-    })
+
+    // By default, we select every room
+    this.selectedRooms = this.rooms.map((r) => r.name)
   },
   beforeMount() {
     this.setToday()
   },
   methods: {
     async fetchEvents() {
-      await this.$axios.get(`/rooms/${this.focus}`).then((res) => {
-        this.rooms = res.data
-      })
+      this.rooms = (await this.$axios.get(`/rooms/${this.focus}`)).data
     },
     isOwner(event) {
       return event.User.id === this.$store.state.auth.user.id
@@ -261,7 +265,7 @@ export default {
       await this.fetchEvents()
     },
     giveEventName(e) {
-      const name = e.input.asso ? e.input.asso : e.input.User.displayName
+      const name = e.input.Asso ? e.input.Asso.name : e.input.User.displayName
       return `
       ${name} -
       ${this.$moment(e.start).format('HH:mm')} →
