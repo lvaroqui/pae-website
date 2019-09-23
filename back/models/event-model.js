@@ -43,7 +43,22 @@ module.exports = (sequelize, DataTypes) => {
           }
         })
         if (events.length > 0) {
-          throw new Error('Il y a déjà une réservation sur ce créneau !')
+          throw new Error('Il y a déjà une réservation sur ce créneau.')
+        }
+      },
+      startIsBeforeEnd() {
+        if (this.start >= this.end) {
+          throw new Error("Le début de l'évènement ne peut pas être après sa fin.")
+        }
+      },
+      sameDay() {
+        if (!moment(this.start).isSame(this.end, 'day')) {
+          throw new Error("Le début et la fin de l'évènement doivent être le même jour.")
+        }
+      },
+      notASunday() {
+        if (moment(this.start).day() === 0) {
+          throw new Error("Vous ne pouvez pas faire de réservation un Dimanche.")
         }
       }
     }
