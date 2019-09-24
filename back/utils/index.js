@@ -7,4 +7,13 @@ const requireAuth = (req, res, next) => {
   next()
 }
 
-module.exports = { requireAuth }
+const requireAdmin = (req, res, next) => {
+  if (!req.user.isAdmin) {
+    return res.status(401).json({
+      message: 'Unauthenticated'
+    })
+  }
+  next()
+}
+
+module.exports = { requireAuth, requireAdmin }

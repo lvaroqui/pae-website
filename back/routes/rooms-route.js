@@ -22,7 +22,6 @@ router.use(requireAuth)
 router.get('/:start/:end', function(req, res) {
   const start = moment(req.params.start)
   const end = moment(req.params.end).add(1, 'day')
-  console.log({start, end})
   models.Room.findAll({
     include: [{
       model: models.Event,
