@@ -161,8 +161,6 @@ export default {
     return {
       // Calendar
       focus: null, // Date at which the Calendar is set
-      start: null, // Start of the Calendar
-      end: null, // End of the Calendar
 
       // Rooms
       rooms: [], // Contains rooms and all of their events
@@ -210,6 +208,13 @@ export default {
     }
   },
 
+  watch: {
+    // Reload events if we pass from day view to week view
+    calendarType() {
+      this.fetchEvents()
+    }
+  },
+
   beforeMount() {
     this.setToday()
   },
@@ -225,7 +230,21 @@ export default {
   methods: {
     // Fetch all events for the current week
     async fetchEvents() {
-      this.rooms = (await this.$axios.get(`/rooms/${this.focus}`)).data
+      let start, end
+
+      // Displaying a week
+      if (this.calendarType === 'week') {
+        start = this.$moment(this.focus).startOf('week')
+        end = this.$moment(start).add(5, 'day')
+      }
+      // Displaying one day
+      else {
+        end = start = this.$moment(this.focus)
+      }
+
+      this.rooms = (await this.$axios.get(
+        `/rooms/${start.format('YYYY-MM-DD')}/${end.format('YYYY-MM-DD')}`
+      )).data
     },
     handleEventClick({ nativeEvent, event }) {
       const open = () => {

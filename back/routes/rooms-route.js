@@ -19,9 +19,10 @@ const checkAuthorization = (req, res, next) => {
 }
 
 router.use(requireAuth)
-router.get('/:monday', function(req, res) {
-  const monday = moment.utc(req.params.monday)
-  const saturday = moment.utc(req.params.monday).add(6, 'day')
+router.get('/:start/:end', function(req, res) {
+  const start = moment(req.params.start)
+  const end = moment(req.params.end).add(1, 'day')
+  console.log({start, end})
   models.Room.findAll({
     include: [{
       model: models.Event,
@@ -29,7 +30,7 @@ router.get('/:monday', function(req, res) {
       attributes: ['id', 'start', 'end', 'details'],
       where: {
         start: {
-          [Op.between]: [monday.toDate(), saturday.toDate()],
+          [Op.between]: [start.toDate(), end.toDate()],
         }
       },
       include: [{
