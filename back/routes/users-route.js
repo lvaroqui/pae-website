@@ -1,11 +1,11 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
 const { requireAuth } = require('../utils')
 
 router.use(requireAuth)
 router.get('/me', async (req, res) => {
   try {
-    const assos = await req.user.getAssos({ 
+    const assos = await req.user.getAssos({
       attributes: ['id', 'name'],
     }).map((asso) => { return { id: asso.id, name: asso.name } })
 
@@ -17,14 +17,14 @@ router.get('/me', async (req, res) => {
       isMu0x: req.user.isMu0x
     }
 
-    res.json({ 
+    res.json({
       ...user,
-      assos 
+      assos
     })
   }
   catch (error) {
     console.error(error)
   }
-});
+})
 
-module.exports = router;
+module.exports = router

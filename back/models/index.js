@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 var fs        = require('fs')
 var path      = require('path')
@@ -23,13 +23,13 @@ fs
   .forEach(file => {
     var model = sequelize['import'](path.join(__dirname, file))
     db[model.name] = model
-  });
+  })
 
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db)
   }
-});
+})
 
 db.sequelize = sequelize
 db.Sequelize = Sequelize

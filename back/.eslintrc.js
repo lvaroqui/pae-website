@@ -3,5 +3,11 @@ module.exports = {
       "eslint:recommended",
       "plugin:node/recommended"
   ],
-  "rules": {}
+  "rules": {
+    "no-unused-vars": ["error", { "args": "none" }],
+    "indent": ["error", 2],
+    "semi": ["error", "never"],
+    "quotes": ["error", "single"],
+    "no-trailing-spaces": ["error"]
+  }
 }

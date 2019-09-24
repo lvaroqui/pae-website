@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     displayName: {
@@ -25,10 +25,10 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: false,
       allowNull: false
     }
-  }, {});
+  }, {})
   User.associate = function(models) {
     User.hasMany(models.Event)
     User.belongsToMany(models.Asso, { through: models.AssoUser })
-  };
-  return User;
-};
+  }
+  return User
+}

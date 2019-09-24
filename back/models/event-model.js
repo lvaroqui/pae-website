@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 const moment = require('moment')
 const Op = require('sequelize').Op
 
@@ -48,25 +48,25 @@ module.exports = (sequelize, DataTypes) => {
       },
       startIsBeforeEnd() {
         if (this.start >= this.end) {
-          throw new Error("Le début de l'évènement ne peut pas être après sa fin.")
+          throw new Error('Le début de l\'évènement ne peut pas être après sa fin.')
         }
       },
       sameDay() {
         if (!moment(this.start).isSame(this.end, 'day')) {
-          throw new Error("Le début et la fin de l'évènement doivent être le même jour.")
+          throw new Error('Le début et la fin de l\'évènement doivent être le même jour.')
         }
       },
       notASunday() {
         if (moment(this.start).day() === 0) {
-          throw new Error("Vous ne pouvez pas faire de réservation un Dimanche.")
+          throw new Error('Vous ne pouvez pas faire de réservation un Dimanche.')
         }
       }
     }
-  });
+  })
   Event.associate = function(models) {
     Event.belongsTo(models.User)
     Event.belongsTo(models.Room)
     Event.belongsTo(models.Asso)
-  };
-  return Event;
-};
+  }
+  return Event
+}

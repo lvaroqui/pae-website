@@ -1,6 +1,6 @@
-'use strict';
-const moment = require('moment');
-const models = require('../models');
+'use strict'
+const moment = require('moment')
+const models = require('../models')
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -15,11 +15,11 @@ module.exports = {
       color: 'green',
       createdAt: new Date(),
       updatedAt: new Date()
-    }], {});
+    }], {})
 
     const room = await models.Room.findOne({
       where: {
-          name: 'FA109',
+        name: 'FA109',
       }})
 
     return await queryInterface.bulkInsert('Events', [{
@@ -30,12 +30,12 @@ module.exports = {
       end: moment().startOf('isoWeek').add(1, 'd').hour(21).toDate(),
       createdAt: new Date(),
       updatedAt: new Date()
-    }], {});
+    }], {})
   },
 
-  
+
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.bulkDelete('Rooms', null, {});
+    return queryInterface.bulkDelete('Rooms', null, {})
   }
-};
+}

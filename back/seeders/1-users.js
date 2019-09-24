@@ -1,7 +1,4 @@
-'use strict';
-const moment = require('moment');
-const models = require('../models');
-
+'use strict'
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert('Users', [{
@@ -12,9 +9,9 @@ module.exports = {
       email: 'luc.varoqui@etu.utc.fr',
       createdAt: new Date(),
       updatedAt: new Date()
-    }], {});
+    }], {})
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.bulkDelete('Rooms', null, {});
+    return queryInterface.bulkDelete('Rooms', null, {})
   }
-};
+}

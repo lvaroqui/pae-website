@@ -14,4 +14,4 @@ module.exports = {
     dialect: 'mysql',
     use_env_variable: 'DATABASE_URL'
   }
-};
+}
