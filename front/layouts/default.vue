@@ -57,25 +57,42 @@ export default {
   middleware: ['auth'],
   data() {
     return {
-      drawer: null, // Is the nav drawer out ?
-      // TODO: hide booking to non auth users
-      items: [
+      drawer: null // Is the nav drawer out ?
+    }
+  },
+  computed: {
+    // Available routes
+    items() {
+      const items = [
         {
           title: 'Accueil',
           icon: 'mdi-home',
           to: '/',
-          color: 'dark-grey'
-        },
-        {
+          color: 'orange'
+        }
+      ]
+      // If user is connected
+      if (this.$store.state.auth.isLoggedIn) {
+        items.push({
           title: 'Réservations',
           icon: 'mdi-calendar',
           to: '/booking',
           color: 'blue'
+        })
+
+        // If user is Admin
+        if (this.$store.state.auth.user.isAdmin) {
+          items.push({
+            title: 'Administration',
+            icon: 'mdi-file-account',
+            to: '/booking',
+            color: 'green'
+          })
         }
-      ] // List of menus
-    }
-  },
-  computed: {
+      }
+      return items
+    },
+
     // Set the drawer and nav bar to clip on big dislays
     clipped() {
       switch (this.$vuetify.breakpoint.name) {
