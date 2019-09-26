@@ -1,0 +1,7 @@
+const config = require('./config');
+console.log(config.db)
+const { host, port, dialect, username, password, name } = config.db
+
+module.exports = {
+  'url': `${dialect}://${username}:${password}:@${host}:${port}/${name}`
+}

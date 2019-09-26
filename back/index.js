@@ -11,7 +11,8 @@ const authRouter = require('./routes/auth-route')
 
 const passport = require('./config/passport')
 
-const keys = require('./config/keys')
+const session = require('./config')['session']
+
 var corsOptions = {
   origin: 'http://localhost:3000',
   optionsSuccessStatus: 200,
@@ -23,7 +24,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieSession({
   maxAge: 24*60*60*1000,
-  keys: [keys.session.cookieKey]}
+  keys: [session.cookieKey]}
 ))
 app.use(passport.initialize())
 app.use(passport.session())
