@@ -156,7 +156,7 @@ import BaseEventModifier from '~/components/BaseEventModifier'
 export default {
   name: 'Booking',
   components: { BaseEventModifier },
-  middleware: ['authRequired'],
+  middleware: ['authRequired', 'assoRequired'],
   data() {
     return {
       // Calendar

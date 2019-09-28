@@ -14,6 +14,7 @@
             :rules="required"
           />
           <v-select
+            v-if="assosList"
             v-model="assoId"
             :items="assosList"
             prepend-icon="mdi-music-clef-treble"
@@ -99,11 +100,19 @@ export default {
 
     // List of available assos based on current user
     assosList() {
-      const list = this.$store.state.auth.user.assos.map((a) => {
-        return { value: a.id, text: a.name }
-      })
-      list.unshift({ value: null, text: 'Aucune' })
-      return list
+      const list = this.$store.state.auth.user.assos
+        .filter((a) => a.hasReservationRight)
+        .map((a) => {
+          return { value: a.id, text: a.name }
+        })
+
+      // If list is empty, no need to display the field
+      if (list.length > 0) {
+        list.unshift({ value: null, text: 'Aucune' })
+        return list
+      } else {
+        return null
+      }
     }
   },
   methods: {

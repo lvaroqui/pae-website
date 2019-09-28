@@ -85,7 +85,7 @@ export default {
           items.push({
             title: 'Administration',
             icon: 'mdi-file-account',
-            to: '/booking',
+            to: '/admin',
             color: 'green'
           })
         }

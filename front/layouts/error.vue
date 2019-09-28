@@ -31,7 +31,7 @@ export default {
   data() {
     return {
       pageNotFound: "Oups, la page n'a pas été trouvée !",
-      otherError: "Une erreure s'est produite"
+      otherError: "Une erreur s'est produite"
     }
   }
 }

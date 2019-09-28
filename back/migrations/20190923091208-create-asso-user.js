@@ -22,6 +22,11 @@ module.exports = {
         onDelete: 'CASCADE',
         type: Sequelize.STRING
       },
+      hasReservationRight: {
+        defaultValue: false,
+        allowNull: false,
+        type: Sequelize.BOOLEAN
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

@@ -7,7 +7,10 @@ router.get('/me', async (req, res) => {
   try {
     const assos = await req.user.getAssos({
       attributes: ['id', 'name'],
-    }).map((asso) => { return { id: asso.id, name: asso.name } })
+      through: {
+        attributes: ['hasReservationRight']
+      }
+    }).map((asso) => { return { id: asso.id, name: asso.name, hasReservationRight: asso.AssoUser.hasReservationRight } })
 
     const user = {
       id: req.user.id,
