@@ -8,8 +8,8 @@ const Op = Sequelize.Op
 const { requireAuth } = require('../utils')
 
 const checkAuthorization = (req, res, next) => {
-  models.Event.findByPk(req.params.id).then(() => {
-    if (!req.user.isAdmin && req.user.id !== req.params.id) {
+  models.Event.findByPk(req.params.id).then((e) => {
+    if (!req.user.isAdmin && req.user.id !== e.UserId) {
       return res.status(403).json({
         message: 'Forbidden'
       })
