@@ -2,44 +2,47 @@ const express = require('express')
 const router = express.Router()
 const models  = require('../models')
 const moment  = require('moment')
+const { ErrorHandler } = require('../helpers/error')
 const Sequelize = require('sequelize')
 const Op = Sequelize.Op
 
-const { requireAuth } = require('../utils')
+const { requireAuth } = require('../helpers')
 
-const checkAuthorization = (req, res, next) => {
-  models.Event.findByPk(req.params.id).then((e) => {
-    if (!req.user.isAdmin && req.user.id !== e.UserId) {
-      return res.status(403).json({
-        message: 'Forbidden'
-      })
-    }
-    next()
-  })
+const checkAuthorization = async (req, res, next) => {
+  let event
+  try {
+    event = await models.Event.findByPk(req.params.id)
+  } catch (error) {
+    return next(new ErrorHandler(400, 'Event could not be find'))
+  }
+
+  if (!req.user.isAdmin && req.user.id !== event.UserId) {
+    return next(new ErrorHandler(403, 'Forbidden'))
+  }
+  return next()
 }
 
-const checkReservationRight = async (user, assoId) => {
-  try {
-    if (user.isAdmin) {
-      return true
-    }
-    else {
-      const asso = (await user.getAssos({
-        where: {id: assoId},
-        attributes: ['id'],
-        through: {
-          attributes: ['hasReservationRight']
-        }
-      }))[0]
-      return asso.AssoUser ? asso.AssoUser.hasReservationRight : false
-    }
-  } catch (error) {
-    return false
+const checkReservationRight = (user, assoId) => {
+  if (user.isAdmin) {
+    return true
   }
+  user.getAssos({
+    where: {id: assoId},
+    attributes: ['id'],
+    through: {
+      attributes: ['hasReservationRight']
+    }
+  })
+    .then(asso => {
+      return asso[0].AssoUser ? asso[0].AssoUser.hasReservationRight : false
+    })
+    .catch(() => {
+      return false
+    })
 }
 
 router.use(requireAuth)
-router.get('/:start/:end', function(req, res) {
+router.get('/:start/:end', (req, res, next) => {
   const start = moment(req.params.start)
   const end = moment(req.params.end).add(1, 'day')
   models.Room.findAll({
@@ -66,9 +69,12 @@ router.get('/:start/:end', function(req, res) {
     .then((rooms) => {
       res.json(rooms)
     })
+    .error((err) => {
+      return next(err)
+    })
 })
 
-router.post('/event', async (req, res) => {
+router.post('/event', (req, res, next) => {
   // Recurring event request from an Admin
   if (req.user.isAdmin && req.body.until) {
     let start = moment(req.body.start)
@@ -100,7 +106,7 @@ router.post('/event', async (req, res) => {
       )
     })
       .catch(err => {
-        res.status(400).send(err.errors)
+        return next(err)
       })
       .then(result => {
         res.status(200).send()
@@ -113,22 +119,21 @@ router.post('/event', async (req, res) => {
       end: req.body.end,
       details: req.body.details
     })
+
     if (req.body.assoId) {
-      if (await checkReservationRight(req.user, req.body.assoId)) {
+      if (checkReservationRight(req.user, req.body.assoId)) {
         event.setAsso(req.body.assoId, {save: false})
       }
       else {
-        return res.status(403).json({
-          message: 'Forbidden'
-        })
+        return next(ErrorHandler(403, 'Vous ne pouvez pas réserver au nom de cette assos.'))
       }
     }
 
     event.setRoom(req.body.roomId, {save: false})
     event.setUser(req.user.id, {save: false})
     event.save()
-      .catch((err) => {
-        res.status(400).send(err.errors)
+      .catch(err => {
+        return next(err)
       })
       .then(() => {
         res.status(200).send()
@@ -136,17 +141,21 @@ router.post('/event', async (req, res) => {
   }
 })
 
-router.patch('/event/:id', checkAuthorization, async function(req, res) {
-  const event = await models.Event.findByPk(req.params.id)
+router.patch('/event/:id', checkAuthorization, async (req, res, next) => {
+  let event
+  try {
+    event = await models.Event.findByPk(req.params.id)
+  } catch (error) {
+    return next(error)
+  }
 
+  // Asso reservation
   if (req.body.assoId) {
-    if (await checkReservationRight(req.user, req.body.assoId)) {
+    if (checkReservationRight(req.user, req.body.assoId)) {
       event.setAsso(req.body.assoId, {save: false})
     }
     else {
-      return res.status(403).json({
-        message: 'Forbidden'
-      })
+      return next(new ErrorHandler(403, 'Vous ne pouvez pas réserver au nom de cette assos.'))
     }
   }
 
@@ -157,14 +166,14 @@ router.patch('/event/:id', checkAuthorization, async function(req, res) {
 
   event.save()
     .catch((err) => {
-      res.status(400).send(err.errors)
+      return next(err)
     })
     .then(() => {
       res.status(200).send()
     })
 })
 
-router.delete('/event/:id', checkAuthorization, function(req, res) {
+router.delete('/event/:id', checkAuthorization, (req, res, next) => {
   models.Event.findByPk(req.params.id).then(room => room.destroy())
   res.status(200).send()
 })

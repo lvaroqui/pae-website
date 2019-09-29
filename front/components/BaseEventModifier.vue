@@ -58,7 +58,10 @@
             />
           </div>
           <div class="red--text">
-            <p v-for="error in errors" :key="error">{{ error }}</p>
+            <h3>{{ errorMessage }}</h3>
+            <ul v-if="errors.length">
+              <li v-for="error in errors" :key="error">{{ error }}</li>
+            </ul>
           </div>
         </v-form>
       </v-card-text>
@@ -91,6 +94,7 @@ export default {
       required: [(v) => !!v || 'Ce champ est nécessaire !'], // Verification rule
       valid: false, // Is the form valid ?
       edit: false, // Is the modal displayed ?
+      errorMessage: '',
       errors: [], // List of errors returned by the API
 
       isRecurring: false, // Is the event recurring (admin only, creation only)
@@ -136,7 +140,6 @@ export default {
     showModal(event) {
       // If an event is passed, take it's values and convert it to match Pickers format
       if (event) {
-        // TODO: use computed getters and setters so abstract manual conversion
         this.eventId = event.id
         this.date = this.$moment(event.start).format('YYYY-MM-DD')
         this.startTime = this.$moment(event.start).format('HH:mm')
@@ -153,6 +156,10 @@ export default {
 
     // Submit modifications to API
     submit() {
+      // Reset errors
+      this.errorMessage = ''
+      this.errors = []
+
       const event = {
         roomId: this.roomId,
         assoId: this.assoId,
@@ -165,29 +172,31 @@ export default {
         event.until = this.$moment(this.until).toDate()
       }
 
+      const handleSuccess = () => {
+        this.$emit('input')
+        this.close()
+      }
+
+      const handleError = (error) => {
+        this.errorMessage = error.response.data.message
+        if (error.response.data.status === 'validationError') {
+          this.errors = error.response.data.errors.map((e) => e.message)
+        }
+      }
+
       // PATCH : an eventId is set
       if (this.eventId) {
         this.$axios
           .patch(`/rooms/event/${this.eventId}`, event)
-          .then(() => {
-            this.$emit('input')
-            this.close()
-          })
-          .catch((err) => {
-            this.errors = err.response.data.map((e) => e.message)
-          })
+          .then(handleSuccess)
+          .catch(handleError)
       }
       // POST : no eventId is set
       else {
         this.$axios
           .post('/rooms/event', event)
-          .then(() => {
-            this.$emit('input')
-            this.close()
-          })
-          .catch((err) => {
-            this.errors = err.response.data.map((e) => e.message)
-          })
+          .then(handleSuccess)
+          .catch(handleError)
       }
     },
     // Close the modal

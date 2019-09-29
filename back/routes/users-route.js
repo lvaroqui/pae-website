@@ -1,10 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const models = require('../models')
-const { requireAuth } = require('../utils')
+const { requireAuth } = require('../helpers')
 
 router.use(requireAuth)
-router.get('/me', async (req, res) => {
+router.get('/me', async (req, res, next) => {
   try {
     let assos
     if (req.user.isAdmin) {
@@ -34,8 +34,7 @@ router.get('/me', async (req, res) => {
     })
   }
   catch (error) {
-    res.status(500).send()
-    console.error(error)
+    next(error)
   }
 })
 
