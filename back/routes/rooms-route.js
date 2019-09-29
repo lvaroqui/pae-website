@@ -18,6 +18,26 @@ const checkAuthorization = (req, res, next) => {
   })
 }
 
+const checkReservationRight = async (user, assoId) => {
+  try {
+    if (user.isAdmin) {
+      return true
+    }
+    else {
+      const asso = (await user.getAssos({
+        where: {id: assoId},
+        attributes: ['id'],
+        through: {
+          attributes: ['hasReservationRight']
+        }
+      }))[0]
+      return asso.AssoUser ? asso.AssoUser.hasReservationRight : false
+    }
+  } catch (error) {
+    return false
+  }
+}
+
 router.use(requireAuth)
 router.get('/:start/:end', function(req, res) {
   const start = moment(req.params.start)
@@ -48,7 +68,7 @@ router.get('/:start/:end', function(req, res) {
     })
 })
 
-router.post('/event', function(req, res) {
+router.post('/event', async (req, res) => {
   // Recurring event request from an Admin
   if (req.user.isAdmin && req.body.until) {
     let start = moment(req.body.start)
@@ -93,7 +113,17 @@ router.post('/event', function(req, res) {
       end: req.body.end,
       details: req.body.details
     })
-    event.setAsso(req.body.assoId, {save: false})
+    if (req.body.assoId) {
+      if (await checkReservationRight(req.user, req.body.assoId)) {
+        event.setAsso(req.body.assoId, {save: false})
+      }
+      else {
+        return res.status(403).json({
+          message: 'Forbidden'
+        })
+      }
+    }
+
     event.setRoom(req.body.roomId, {save: false})
     event.setUser(req.user.id, {save: false})
     event.save()
@@ -109,7 +139,17 @@ router.post('/event', function(req, res) {
 router.patch('/event/:id', checkAuthorization, async function(req, res) {
   const event = await models.Event.findByPk(req.params.id)
 
-  event.setAsso(req.body.assoId, {save: false})
+  if (req.body.assoId) {
+    if (await checkReservationRight(req.user, req.body.assoId)) {
+      event.setAsso(req.body.assoId, {save: false})
+    }
+    else {
+      return res.status(403).json({
+        message: 'Forbidden'
+      })
+    }
+  }
+
   event.setRoom(req.body.roomId, {save: false})
   event.start = req.body.start,
   event.end = req.body.end,

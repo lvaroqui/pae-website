@@ -1,16 +1,24 @@
 const express = require('express')
 const router = express.Router()
+const models = require('../models')
 const { requireAuth } = require('../utils')
 
 router.use(requireAuth)
 router.get('/me', async (req, res) => {
   try {
-    const assos = await req.user.getAssos({
-      attributes: ['id', 'name'],
-      through: {
-        attributes: ['hasReservationRight']
-      }
-    }).map((asso) => { return { id: asso.id, name: asso.name, hasReservationRight: asso.AssoUser.hasReservationRight } })
+    let assos
+    if (req.user.isAdmin) {
+      assos = await models.Asso.findAll()
+        .map((asso) => { return { id: asso.id, name: asso.name, hasReservationRight: true } })
+    }
+    else {
+      assos = await req.user.getAssos({
+        attributes: ['id', 'name'],
+        through: {
+          attributes: ['hasReservationRight']
+        }
+      }).map((asso) => { return { id: asso.id, name: asso.name, hasReservationRight: asso.AssoUser.hasReservationRight } })
+    }
 
     const user = {
       id: req.user.id,
@@ -26,6 +34,7 @@ router.get('/me', async (req, res) => {
     })
   }
   catch (error) {
+    res.status(500).send()
     console.error(error)
   }
 })
