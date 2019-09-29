@@ -44,6 +44,19 @@
             label="Heure de fin"
             :rules="required"
           />
+
+          <div v-if="!eventId && $store.state.auth.user.isAdmin">
+            <v-checkbox
+              v-model="isRecurring"
+              label="Répéter l'évènement"
+            ></v-checkbox>
+            <BaseDatePickerField
+              v-if="isRecurring"
+              v-model="until"
+              label="Dernière répétition"
+              :rules="required"
+            />
+          </div>
           <div class="red--text">
             <p v-for="error in errors" :key="error">{{ error }}</p>
           </div>
@@ -80,6 +93,8 @@ export default {
       edit: false, // Is the modal displayed ?
       errors: [], // List of errors returned by the API
 
+      isRecurring: false, // Is the event recurring (admin only, creation only)
+
       // Edited event attributes values
       roomId: null,
       assoId: null,
@@ -87,6 +102,7 @@ export default {
       startTime: '',
       endTime: '',
       details: '',
+      until: '',
       eventId: null
     }
   },
@@ -145,6 +161,10 @@ export default {
         details: this.details
       }
 
+      if (this.isRecurring) {
+        event.until = this.$moment(this.until).toDate()
+      }
+
       // PATCH : an eventId is set
       if (this.eventId) {
         this.$axios
@@ -172,18 +192,7 @@ export default {
     },
     // Close the modal
     close() {
-      // Hide Modal
-      this.edit = false
-
-      // Reset Local State
-      this.eventId = null
-      this.roomId = null
-      this.assoId = null
-      this.date = ''
-      this.startTime = ''
-      this.endTime = ''
-      this.details = ''
-      this.errors = []
+      Object.assign(this.$data, this.$options.data())
     },
     // Function that updates endTime so that it is always after startTime
     handleStartTimeInput() {

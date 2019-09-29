@@ -49,21 +49,61 @@ router.get('/:start/:end', function(req, res) {
 })
 
 router.post('/event', function(req, res) {
-  const event = models.Event.build({
-    start: req.body.start,
-    end: req.body.end,
-    details: req.body.details
-  })
-  event.setAsso(req.body.assoId, {save: false})
-  event.setRoom(req.body.roomId, {save: false})
-  event.setUser(req.user.id, {save: false})
-  event.save()
-    .catch((err) => {
-      res.status(400).send(err.errors)
+  // Recurring event request from an Admin
+  if (req.user.isAdmin && req.body.until) {
+    let start = moment(req.body.start)
+    let end = moment(req.body.end)
+    const until = moment(req.body.until)
+    const events = []
+
+    // Building all events
+    while (start.isSameOrBefore(until, 'day')) {
+      const event = models.Event.build({
+        start: start.toDate(),
+        end: end.toDate(),
+        details: req.body.details
+      })
+      event.setAsso(req.body.assoId, {save: false})
+      event.setRoom(req.body.roomId, {save: false})
+      event.setUser(req.user.id, {save: false})
+
+      events.push(event)
+
+      start.add(7, 'day')
+      end.add(7, 'day')
+    }
+
+    // Trying to insert events in one transaction
+    models.sequelize.transaction((t) => {
+      return Promise.all(
+        events.map(e => e.save({ transaction: t }))
+      )
     })
-    .then(() => {
-      res.status(200).send()
+      .catch(err => {
+        res.status(400).send(err.errors)
+      })
+      .then(result => {
+        res.status(200).send()
+      })
+  }
+  // Standalone request
+  else {
+    const event = models.Event.build({
+      start: req.body.start,
+      end: req.body.end,
+      details: req.body.details
     })
+    event.setAsso(req.body.assoId, {save: false})
+    event.setRoom(req.body.roomId, {save: false})
+    event.setUser(req.user.id, {save: false})
+    event.save()
+      .catch((err) => {
+        res.status(400).send(err.errors)
+      })
+      .then(() => {
+        res.status(200).send()
+      })
+  }
 })
 
 router.patch('/event/:id', checkAuthorization, async function(req, res) {
