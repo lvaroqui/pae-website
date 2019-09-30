@@ -1,22 +1,19 @@
-# front
+# Front
 
-> Front for the PAE room booking service
+> Front for the PAE Website.
+
+The front is written in [Vue.js](https://vuejs.org/) which is wrapped with [Nuxt.js](https://nuxtjs.org), it takes care of the Webpack config for us. For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
+
 
 ## Build Setup
 
 ``` bash
 # install dependencies
-$ npm run install
+$ pnpm install
 
 # serve with hot reload at localhost:3000
-$ npm run dev
+$ pnpm run dev
 
 # build for production and launch server
-$ npm run build
-$ npm run start
-
-# generate static project
-$ npm run generate
+$ pnpm run build
 ```
-
-For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).

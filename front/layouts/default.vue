@@ -45,8 +45,17 @@
       </v-container>
     </v-content>
 
-    <v-footer app>
-      <span>&copy; 2019</span>
+    <v-footer class="footer" app>
+      <span>
+        &#60;/&#62; by
+        <a href="https://www.linkedin.com/in/luc-varoqui-897689125/">
+          Luc Varoqui
+        </a>
+      </span>
+      <div class="flex-grow-1"></div>
+      <span>
+        <a href="https://github.com/lvaroqui/pae-website/issues">Bug Report</a>
+      </span>
     </v-footer>
   </v-app>
 </template>
@@ -113,3 +122,14 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.v-footer a {
+  color: rgb(32, 97, 134);
+  text-decoration: none;
+  transition: color 0.2s;
+  &:hover {
+    color: rgb(55, 173, 241);
+  }
+}
+</style>
