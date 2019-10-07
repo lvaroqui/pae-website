@@ -8,8 +8,8 @@ const Op = require('sequelize').Op
 axios.defaults.baseURL = `${ config.hosts.api }/api/v1`
 
 let client = new OAuth2Strategy({
-  authorizationURL: `${ config.hosts.api }/oauth/authorize/`,
-  tokenURL: `${ config.hosts.api }/oauth/token/`,
+  authorizationURL: `${ config.hosts.api }/oauth/authorize`,
+  tokenURL: `${ config.hosts.api }/oauth/token`,
   clientID: config.api.clientID,
   clientSecret: config.api.clientSecret,
   callbackURL: `${ config.hosts.back }/auth/redirect`,

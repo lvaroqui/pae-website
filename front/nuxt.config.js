@@ -1,6 +1,8 @@
 // import colors from 'vuetify/es5/util/colors'
 import fr from 'vuetify/es5/locale/fr'
 
+const prod = process.env.NODE_ENV === 'production'
+
 export default {
   mode: 'spa',
   /*
@@ -68,10 +70,8 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    host: 'localhost',
-    port: '3001',
-    credentials: true,
-    prefix: '/api'
+    baseURL: prod ? 'https://pae.varoqui.org/api' : 'http://localhost:3001/api',
+    credentials: true
   },
   /*
    ** vuetify module configuration
@@ -106,7 +106,9 @@ export default {
      ** You can extend webpack config here
      */
     extend(config, ctx) {
-      config.devtool = '#source-map'
+      if (!prod) {
+        config.devtool = '#source-map'
+      }
     }
   }
 }

@@ -1,0 +1,17 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1,
+    "workspacePrefix": null
+  },
+  "1 error pnpm": {
+    "message": {
+      "code": "ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND"
+    },
+    "err": {
+      "name": "Error",
+      "message": "No package.json (or package.yaml, or package.json5) was found in \"/home/luc/lab/pae-booking\".",
+      "code": "ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND",
+      "stack": "Error: No package.json (or package.yaml, or package.json5) was found in \"/home/luc/lab/pae-booking\".\n    at readImporterManifest (/home/luc/.npm-global/pnpm-global/2/node_modules/.registry.npmjs.org/pnpm/4.0.0/node_modules/pnpm/lib/node_modules/@pnpm/read-importer-manifest/lib/index.js:20:11)"
+    }
+  }
+}

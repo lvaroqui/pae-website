@@ -13,9 +13,10 @@ const passport = require('./config/passport')
 
 const session = require('./config')['session']
 const { handleError } = require('./helpers/error')
+const config = require('./config')
 
 var corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: config.hosts.front,
   optionsSuccessStatus: 200,
   credentials: true
 }

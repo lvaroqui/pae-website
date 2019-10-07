@@ -11,11 +11,14 @@
       <div class="flex-grow-1"></div>
       <v-btn
         v-if="!$store.state.auth.isLoggedIn"
-        href="http://localhost:3001/auth"
+        :href="`${$axios.defaults.baseURL.slice(0, -4)}/auth`"
       >
         Connexion <v-icon right>mdi-login</v-icon>
       </v-btn>
-      <v-btn v-else href="http://localhost:3001/auth/logout">
+      <v-btn
+        v-else
+        :href="`${$axios.defaults.baseURL.slice(0, -4)}/auth/logout`"
+      >
         Déconnexion <v-icon right>mdi-logout</v-icon>
       </v-btn>
     </v-app-bar>

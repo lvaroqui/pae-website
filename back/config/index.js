@@ -35,7 +35,7 @@ else if (env === 'production') {
     },
     api: {
       clientID: process.env.PORTAIL_CLIENT_ID,
-      clientPassword: process.env.PORTAIL_PASSWORD,
+      clientSecret: process.env.PORTAIL_PASSWORD,
     },
     db: {
       username: process.env.DB_USERNAME,
