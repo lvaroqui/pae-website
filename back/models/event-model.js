@@ -47,10 +47,10 @@ module.exports = (sequelize, DataTypes) => {
           throw new Error('Les réservations individuelles ne peuvent pas être plus de 3 semaines dans le futur.')
         }
       },
-      noCollision() {
+      async noCollision() {
         const myStart = moment(this.start).add(1, 'minute').toDate()
         const myEnd = moment(this.end).subtract(1, 'minute').toDate()
-        const events = Event.findAll({
+        const events = await Event.findAll({
           where: {
             [Op.or]: [
               {[Op.or]: [
@@ -67,11 +67,11 @@ module.exports = (sequelize, DataTypes) => {
               [Op.ne]: this.id
             }
           }
-        }).then( () => {
-          if (events.length > 0) {
-            throw new Error('Il y a déjà une réservation sur ce créneau.')
-          }
         })
+        console.log(events)
+        if (events.length > 0) {
+          throw new Error('Il y a déjà une réservation sur ce créneau.')
+        }
       },
       async maxHoursPerWeek() {
         if (!this.AssoId) {
