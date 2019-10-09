@@ -68,7 +68,6 @@ module.exports = (sequelize, DataTypes) => {
             }
           }
         })
-        console.log(events)
         if (events.length > 0) {
           throw new Error('Il y a déjà une réservation sur ce créneau.')
         }
@@ -94,7 +93,6 @@ module.exports = (sequelize, DataTypes) => {
           events.forEach(e => {
             minutes += moment(e.end).diff(e.start, 'minutes')
           })
-          console.log(minutes)
           if (minutes > 180) {
             throw new Error(message)
           }

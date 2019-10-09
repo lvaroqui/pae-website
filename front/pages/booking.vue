@@ -355,8 +355,8 @@ export default {
       const name = e.input.Asso ? e.input.Asso.name : e.input.User.displayName
       return `
       ${name} -
-      ${this.$moment(e.start).format('HH:mm')} →
-      ${this.$moment(e.end).format('HH:mm')}
+      ${e.start.time} →
+      ${e.end.time}
       `
     },
 
