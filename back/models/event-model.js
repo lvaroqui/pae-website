@@ -87,7 +87,8 @@ module.exports = (sequelize, DataTypes) => {
             where: {
               id: { [Op.ne]: this.id },
               start: { [Op.gte]: startOfWeek },
-              end: { [Op.lte]: endOfWeek }
+              end: { [Op.lte]: endOfWeek },
+              AssoId: { [Op.is]: null}
             }
           })
           events.forEach(e => {
