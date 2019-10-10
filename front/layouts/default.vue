@@ -57,6 +57,10 @@
       </span>
       <div class="flex-grow-1"></div>
       <span>
+        <nuxt-link to="/policy">Politique de confidentialité</nuxt-link>
+      </span>
+      <div class="flex-grow-1"></div>
+      <span>
         <a href="https://github.com/lvaroqui/pae-website/issues">Bug Report</a>
       </span>
     </v-footer>
