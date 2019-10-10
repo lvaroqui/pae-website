@@ -13,20 +13,7 @@
       <li>
         Votre appartenance à une des associations suivantes du PAE UTC :
         <ul>
-          <li>PAE</li>
-          <li>Comédie Musicale</li>
-          <li>Stravaganza</li>
-          <li>Pic'n'Rock</li>
-          <li>Coïncidence</li>
-          <li>Salsa'UTC</li>
-          <li>Piano-ut's</li>
-          <li>UTCrew</li>
-          <li>Capharnaüm</li>
-          <li>AcoUsTiC</li>
-          <li>Flow Raison</li>
-          <li>Cheer'UTC</li>
-          <li>Acrockeur</li>
-          <li>Eden</li>
+          <li v-for="asso in assos" :key="asso.id">{{ asso.name }}</li>
         </ul>
       </li>
     </ul>
@@ -68,6 +55,21 @@
 <script>
 export default {
   name: 'Policy',
+  data() {
+    return {
+      assos: []
+    }
+  },
+  mounted() {
+    this.$axios
+      .get('/assos')
+      .then(({ data }) => {
+        this.assos = data
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+  },
   head() {
     return {
       title: 'Politique de confidentialité'

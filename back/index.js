@@ -5,6 +5,7 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const cookieSession = require('cookie-session')
 
+const assosRouter = require('./routes/assos-routes')
 const roomsRouter = require('./routes/rooms-route')
 const usersRouter = require('./routes/users-route')
 const authRouter = require('./routes/auth-route')
@@ -31,6 +32,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 app.use('/auth', authRouter)
+app.use('/api/assos', assosRouter)
 app.use('/api/rooms', roomsRouter)
 app.use('/api/users', usersRouter)
 
