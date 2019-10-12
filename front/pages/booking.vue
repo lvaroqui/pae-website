@@ -104,11 +104,11 @@
               </v-btn>
             </v-toolbar>
             <v-card-text>
-              <p v-if="selectedEvent.User">
+              <p v-if="selectedEvent.User && selectedEvent.User.displayName">
                 <v-icon>mdi-account-box-outline</v-icon>
                 {{ selectedEvent.User.displayName }}
               </p>
-              <p v-if="selectedEvent.User">
+              <p v-if="selectedEvent.User && selectedEvent.User.email">
                 <v-icon>mdi-email-outline</v-icon>
                 <a :href="`mailto:${selectedEvent.User.email}`">
                   {{ selectedEvent.User.email }}
@@ -352,12 +352,14 @@ export default {
 
     // Given an event, returns the name to display on the Calendar
     giveEventName(e) {
-      const name = e.input.Asso ? e.input.Asso.name : e.input.User.displayName
-      return `
-      ${name} -
-      ${e.start.time} →
-      ${e.end.time}
-      `
+      const time = `${e.start.time} → ${e.end.time}`
+      if (e.input.Asso) {
+        return `${e.input.Asso.name} - ${time}`
+      } else if (e.input.User.displayName) {
+        return `${e.input.User.displayName} - ${time}`
+      } else {
+        return `Résa individuelle - ${time}`
+      }
     },
 
     // Set date to Today
