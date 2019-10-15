@@ -43,7 +43,7 @@ module.exports = (sequelize, DataTypes) => {
         }
       },
       futurLimit() {
-        if (!this.AssoId && moment().add(3, 'week').isBefore(this.start)) {
+        if (!this.AssoId && moment().add(3, 'week').isBefore(this.start, 'day')) {
           throw new Error('Les réservations individuelles ne peuvent pas être plus de 3 semaines dans le futur.')
         }
       },
