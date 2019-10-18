@@ -45,6 +45,7 @@ router.use(requireAuth)
 router.get('/:start/:end', (req, res, next) => {
   const start = moment(req.params.start)
   const end = moment(req.params.end).add(1, 'day')
+  const userAttributes = req.user.isAdmin ? ['id', 'displayName', 'email'] : ['id']
   models.Room.findAll({
     include: [{
       model: models.Event,
@@ -57,7 +58,7 @@ router.get('/:start/:end', (req, res, next) => {
       },
       include: [{
         model: models.User,
-        attributes: ['id', 'displayName', 'email']
+        attributes: userAttributes
       },
       {
         model: models.Asso,
