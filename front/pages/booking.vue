@@ -358,7 +358,7 @@ export default {
       } else if (e.input.User.displayName) {
         return `${e.input.User.displayName} - ${time}`
       } else {
-        return `Résa individuelle - ${time}`
+        return `Indiv. - ${time}`
       }
     },
 
