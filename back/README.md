@@ -1,8 +1,8 @@
-# Front
+# Back
 
 > Back for the PAE Website.
 
-The front is written with [Node.js](https://nodejs.org/en/) and [Express.js](https://expressjs.com/fr/). It uses Sequelize as the ORM to interact with the MySQL database. The [Portail des Assos](https://github.com/simde-utc/portail) handles the authentification and users infos retrievement.
+The back is written with [Node.js](https://nodejs.org/en/) and [Express.js](https://expressjs.com/fr/). It uses Sequelize as the ORM to interact with the MySQL database. The [Portail des Assos](https://github.com/simde-utc/portail) handles the authentification and users infos retrievement.
 
 
 ## Build Setup
